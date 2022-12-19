@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router'
+import '@homebridge/plugin-ui-utils/dist/ui.interface'
 
-createApp(App).use(router).mount('#app')
+createApp(App).mount('#app')
