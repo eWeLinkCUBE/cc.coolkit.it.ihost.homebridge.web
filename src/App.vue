@@ -67,15 +67,7 @@ async function getDevicesByAT(accessToken: string) {
 }
 </script>
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-h1, h2, h3, h4, h5, h6, p {
-    margin: 0;
-    padding: 0;
-}
+@import url('./assets/style/common.scss');
 #app {
 	font-family: Avenir, Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
@@ -96,6 +88,7 @@ h1, h2, h3, h4, h5, h6, p {
 }
 .content {
     margin: 10px;
+    padding: 10px;
     font-size: 14px;
     box-shadow: 0 2px 5px #00000029, 0 2px 10px #0000001f;
 }
