@@ -31,22 +31,57 @@ import { useI18n } from 'vue-i18n';
 import { useIHostStore } from '@/stores/iHost';
 import { useDeviceStore, type deviceListItem } from '@/stores/device';
 import { storeToRefs } from 'pinia';
+import { onMounted } from '@vue/runtime-core';
 
 const { t } = useI18n();
 
-const { token } = storeToRefs(useIHostStore());
+const { token, getTokenIP } = storeToRefs(useIHostStore());
 const deviceStore = useDeviceStore();
 const { deviceList, categoryDeviceList } = storeToRefs(deviceStore);
 // 勾选设备类别
 const handleTotalChange = (device: deviceListItem[], e: any) => {
     const checked = e.target.checked;
     device.forEach((item) => deviceStore.updateDevicesListChecked(item.serial_number, checked));
+    updatePluginConfig();
 };
 // 勾选具体设备
 const handleSingleChange = (v: string, e: any) => {
     const checked = e.target.checked;
     deviceStore.updateDevicesListChecked(v, checked);
+    updatePluginConfig();
 };
+//	根据access_token获取 openapi设备
+const getDevicesByAT = async () => {
+    const config = { ip: getTokenIP.value, at: token.value };
+    const { error, data } = await window.homebridge.request('/getDevices', config);
+    if (error === 0) {
+        console.log('devices', data.device_list);
+        deviceList.value = data.device_list.map((v: any) => ({
+            name: v.name,
+            serial_number: v.serial_number,
+            display_category: v.display_category,
+            checked: true
+        }));
+    }
+};
+onMounted(() => {
+    getDevicesByAT();
+});
+//	注意！！！
+//  任何有关于config的修改，都需要先调用updatePluginConfig方法，这样在点击保存时，才能正确将config写入磁盘
+const updatePluginConfig = async () => {
+    console.log('updatePluginConfig', deviceList.value);
+    const res = await window.homebridge.updatePluginConfig([
+        {
+            name: 'homebridge-plugin-ihost',
+            platform: 'IhostPlatform',
+            devices: deviceList.value
+        }
+    ]);
+    console.log(res);
+};
+// const res = await window.homebridge.updatePluginConfig([{ name: 'homebridge-plugin-ihost', devices }]);
+// console.log('🚀 ~ file: App.vue:39 ~ click2 ~ res', res);
 </script>
 
 <style lang="scss" scoped>

@@ -89,12 +89,14 @@ export const useDeviceStore = defineStore({
         };
     },
     actions: {
+        // 更新设备勾选状态
         updateDevicesListChecked(str: string, checked: boolean) {
             const index = this.deviceList.findIndex((v) => v.serial_number === str);
             this.deviceList[index].checked = checked;
         }
     },
     getters: {
+        // 分类后的设备列表
         categoryDeviceList() {
             const res: categoryDeviceListItem[] = [];
             for (let categoryName of categoryMap.keys()) {

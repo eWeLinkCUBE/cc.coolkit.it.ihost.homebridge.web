@@ -8,6 +8,7 @@ export default {
         INVALID_TOKEN: 'token已失效，请重新获取token',
         GET_TOKEN: '获取token',
         RE_GET_TOKEN: '重新获取token',
+        ALREADY_GET_TOKEN: '已获取token',
         QUERY_IHOST: 'IP查找iHost',
         ADD_IHOST_PLACEHOLDER: '请输入要添加的iHost的IP',
         LOG_FEAT: '日志中显示设备事件',

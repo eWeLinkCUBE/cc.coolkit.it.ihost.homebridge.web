@@ -8,6 +8,7 @@ export default {
         INVALID_TOKEN: '**************',
         GET_TOKEN: '********',
         RE_GET_TOKEN: '******',
+        ALREADY_GET_TOKEN: '*******',
         QUERY_IHOST: '************',
         ADD_IHOST_PLACEHOLDER: '******************',
         LOG_FEAT: '************',
