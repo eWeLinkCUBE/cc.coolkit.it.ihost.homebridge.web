@@ -15,7 +15,7 @@ export default {
         LOG_DESC: '选中后将会在日志中记录设备事件更改'
     },
     DEVICES: {
-        UNABLE_GET_DEVICE: '无法获取设备。请先获取token',
+        UNABLE_GET_DEVICE: '无法获取设备，请先获取token',
         NO_DEVICE: '暂无设备',
         TIP: '取消选中设备，设备将不会显示在 HomeKit',
         SWITCH: '开关插座',

@@ -13,10 +13,7 @@
             <li>{{ t('SETTINGS.TIP_2') }}</li>
         </ul>
         <!-- 无效token提示 -->
-        <div class="invalid-warning">
-            <img class="invalid-icon" src="" alt="" />
-            <span class="invalid-txt">{{ t('SETTINGS.INVALID_TOKEN') }}</span>
-        </div>
+        <InvalidToken v-if="isExpire" />
         <!-- iHost卡片区域 -->
         <div class="card-wrapper">
             <div class="card" v-for="(item, index) in iHostList" :key="index">
@@ -24,7 +21,11 @@
                     <h5 class="card-title">{{ item.name }}</h5>
                     <p class="card-text">IP: {{ item.ip }}</p>
                     <p class="card-text">MAC: {{ item.mac }}</p>
-                    <button class="btn btn-primary btn-sm" @click="handleGetToken(item.mac, item.ip)" :disabled="unableClickGetToken">
+                    <button
+                        :class="['btn', 'btn-sm', unableClickGetToken ? 'btn-secondary' : 'btn-primary']"
+                        @click="handleGetToken(item.mac, item.ip)"
+                        :disabled="unableClickGetToken"
+                    >
                         {{ getTokenTxt[index] }}
                     </button>
                 </div>
@@ -43,15 +44,15 @@
                 <button type="button" class="btn-close" @click="closeAddIHostModal"></button>
             </div>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" v-model="inputIP" :placeholder="t('SETTINGS.ADD_IHOST_PLACEHOLDER')" />
+                <input type="text" class="form-control" v-model.trim="inputIP" :placeholder="t('SETTINGS.ADD_IHOST_PLACEHOLDER')" />
                 <span :class="['input-group-text', unableClickGetToken ? 'not-allowed' : 'pointer']" @click="handleLink">Link</span>
             </div>
         </div>
         <!-- log -->
         <span class="label">Log Config</span>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-            <label class="form-check-label" for="flexCheckDefault">
+            <input class="form-check-input" type="checkbox" :checked="enableDeviceLog" @change="handleChange" />
+            <label class="form-check-label">
                 <span class="step">{{ t('SETTINGS.LOG_FEAT') }}</span>
             </label>
         </div>
@@ -60,29 +61,30 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from '@vue/reactivity';
+import { ref, computed, onMounted } from '@vue/runtime-core';
 import { useI18n } from 'vue-i18n';
 import { useIHostStore } from '@/stores/iHost';
 import { storeToRefs } from 'pinia';
-import { computed, onMounted } from 'vue';
+import { updatePluginConfig } from '@/utils/config'
 import { formatSecondToMinute } from '@/utils/time';
+import InvalidToken from '@/components/InvalidToken.vue';
 
 const { t } = useI18n();
 const iHostStore = useIHostStore();
-const { iHostList, token, interval, getTokenTime, getTokenIP, getTokenMac, successGetTokenIP, successGetTokenMac } = storeToRefs(iHostStore);
+const { iHostList, token, isExpire, getTokenTime, getTokenMac, successGetTokenMac, interval, enableDeviceLog } = storeToRefs(iHostStore);
 // 距上次获取token过去的时间
 const actualInterval = ref(Math.floor((Date.now() - getTokenTime.value) / 1000));
 // 是否处于倒计时中
 const isInCountDown = computed(() => actualInterval.value < interval.value);
 // 是否禁用获取token按钮
-const unableClickGetToken = ref(actualInterval.value < interval.value);
+const unableClickGetToken = ref(!isExpire.value || actualInterval.value < interval.value);
 // 获取token按钮文案
 const getTokenTxt = computed(() => {
     return iHostList.value.map((v) => {
-        if (v.mac === successGetTokenMac.value) {
-            return t('SETTINGS.ALREADY_GET_TOKEN');
-        } else if (v.mac === getTokenMac.value && isInCountDown.value) {
+        if (v.mac === getTokenMac.value && isInCountDown.value) {
             return countDownTxt.value;
+        } else if (v.mac === successGetTokenMac.value) {
+            return isExpire.value ? t('SETTINGS.RE_GET_TOKEN') : t('SETTINGS.ALREADY_GET_TOKEN');
         }
         return t('SETTINGS.GET_TOKEN');
     });
@@ -92,7 +94,7 @@ const timer = ref<number>();
 const initCount = isInCountDown.value ? interval.value - actualInterval.value : interval.value;
 const count = ref(initCount);
 const countDownTxt = computed(() => formatSecondToMinute(count.value));
-const countDown = (callback = () => {}) => {
+const countDown = () => {
     timer.value = setInterval(() => {
         if (count.value === 0) {
             unableClickGetToken.value = false;
@@ -102,18 +104,16 @@ const countDown = (callback = () => {}) => {
         }
         count.value--;
         actualInterval.value = Math.floor((Date.now() - getTokenTime.value) / 1000);
-        callback();
+        getAccessToken(getTokenMac.value, getTokenIP.value);
     }, 1000);
 };
 // 点击获取token按钮
+const getTokenIP = computed(() => iHostList.value.find(v => v.mac === getTokenMac.value)?.ip ?? '')
 const handleGetToken = (mac: string, ip: string) => {
     unableClickGetToken.value = true;
     getTokenTime.value = Date.now();
     getTokenMac.value = mac;
-    getTokenIP.value = ip;
-    countDown(() => {
-        getAccessToken(mac, ip);
-    });
+    countDown();
 };
 //	获取access_token
 const getAccessToken = async (mac: string, ip: string) => {
@@ -123,7 +123,6 @@ const getAccessToken = async (mac: string, ip: string) => {
         token.value = data.token;
         clearInterval(timer.value);
         unableClickGetToken.value = true;
-        successGetTokenIP.value = ip;
         successGetTokenMac.value = mac;
     }
 };
@@ -147,6 +146,11 @@ const handleLink = async () => {
     const res = await window.homebridge.request('/getDeviceByIp', inputIP.value);
     iHostStore.addIHost(res);
 };
+// 是否显示设备日志
+const handleChange = (e: any) => {
+    enableDeviceLog.value = e.target.checked;
+    updatePluginConfig()
+};
 </script>
 
 <style lang="scss" scoped>
@@ -166,20 +170,6 @@ const handleLink = async () => {
     }
     .step {
         color: #555;
-    }
-    .invalid-warning {
-        display: flex;
-        align-items: center;
-        height: 40px;
-        padding: 10px;
-        background-color: #f2f2f2;
-        color: #c22c2c;
-        border-radius: 8px;
-        .invalid-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 8px;
-        }
     }
     .card-wrapper {
         display: flex;

@@ -1,11 +1,11 @@
 <template>
     <div class="header-tab">
-        <button :class="['settings', 'btn', active === 0 ? 'btn-primary' : 'btn-secondary']" @click="click1">SETTINGS</button>
-        <button :class="['devicesList', 'btn', active === 1 ? 'btn-primary' : 'btn-secondary']" @click="click2">Devices List</button>
+        <button :class="['settings', 'btn', active === 0 ? 'btn-primary' : 'btn-secondary']" @click="toggleTab(0)">SETTINGS</button>
+        <button :class="['devicesList', 'btn', active === 1 ? 'btn-primary' : 'btn-secondary']" @click="toggleTab(1)">Devices List</button>
     </div>
     <div class="content">
-        <Settings v-if="active === 0" />
-        <DevicesList v-else />
+        <Settings v-show="active === 0" />
+        <DevicesList v-show="active === 1" />
     </div>
 </template>
 <script setup lang="ts">
@@ -13,21 +13,12 @@ import { onMounted, ref } from 'vue';
 import '@homebridge/plugin-ui-utils/dist/ui.interface';
 import Settings from './views/Settings.vue';
 import DevicesList from './views/DevicesList.vue';
-import { useIHostStore } from '@/stores/iHost';
 
+// 切换顶部tab
 const active = ref(0);
-const click1 = () => {
-    active.value = 0;
-};
-const click2 = async () => {
-    active.value = 1;
-};
-const devices = [
-    { id: 1, name: 1 },
-    { id: 2, name: 2 },
-    { id: 3, name: 3 },
-    { id: 4, name: 4 }
-];
+const toggleTab = (num: number) => {
+    active.value = num;
+}
 onMounted(async () => {
     // //	获取磁盘缓存设备信息
     // const accessories = await window.homebridge.getCachedAccessories();

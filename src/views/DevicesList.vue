@@ -1,6 +1,7 @@
 <template>
     <!-- 无token时展示 -->
     <div class="unable-get-device title" v-if="!token">{{ t('DEVICES.UNABLE_GET_DEVICE') }}</div>
+    <InvalidToken v-else-if="isExpire" />
     <div v-else>
         <!-- 有token无设备时展示 -->
         <p class="no-device title" v-if="!deviceList.length">{{ t('DEVICES.NO_DEVICE') }}</p>
@@ -28,16 +29,20 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
-import { useIHostStore } from '@/stores/iHost';
+import { useIHostStore, type iHostListItem } from '@/stores/iHost';
 import { useDeviceStore, type deviceListItem } from '@/stores/device';
 import { storeToRefs } from 'pinia';
-import { onMounted } from '@vue/runtime-core';
+import { updatePluginConfig } from '@/utils/config';
+import { onMounted, ref, toRaw } from '@vue/runtime-core';
+import InvalidToken from '@/components/InvalidToken.vue';
 
 const { t } = useI18n();
 
-const { token, getTokenIP } = storeToRefs(useIHostStore());
+const { iHostList, token, isExpire, successGetTokenMac, enableDeviceLog } = storeToRefs(useIHostStore());
 const deviceStore = useDeviceStore();
 const { deviceList, categoryDeviceList } = storeToRefs(deviceStore);
+// 注意！！！
+// 任何有关于config的修改，都需要先调用updatePluginConfig方法，这样在点击保存时，才能正确将config写入磁盘
 // 勾选设备类别
 const handleTotalChange = (device: deviceListItem[], e: any) => {
     const checked = e.target.checked;
@@ -52,36 +57,34 @@ const handleSingleChange = (v: string, e: any) => {
 };
 //	根据access_token获取 openapi设备
 const getDevicesByAT = async () => {
-    const config = { ip: getTokenIP.value, at: token.value };
+    const { ip } = iHostList.value.find((v) => v.mac === successGetTokenMac.value) as iHostListItem;
+    const config = { ip, at: token.value };
     const { error, data } = await window.homebridge.request('/getDevices', config);
     if (error === 0) {
-        console.log('devices', data.device_list);
-        deviceList.value = data.device_list.map((v: any) => ({
-            name: v.name,
-            serial_number: v.serial_number,
-            display_category: v.display_category,
-            checked: true
-        }));
+        console.log('根据at获取设备成功', data)
+        await getPluginConfig();
+        const formatDeviceList = data.device_list.map((item: any) => {
+            const { name, serial_number, display_category } = item;
+            const checked = configDevicesList.value?.find((v) => v.serial_number === serial_number)?.checked ?? true;
+            return { name, serial_number, display_category, checked };
+        });
+        deviceList.value = formatDeviceList;
+    } else if (error === 401) {
+        console.log('token过期');
+        isExpire.value = true;
     }
 };
 onMounted(() => {
-    getDevicesByAT();
+   token.value && getDevicesByAT();
 });
-//	注意！！！
-//  任何有关于config的修改，都需要先调用updatePluginConfig方法，这样在点击保存时，才能正确将config写入磁盘
-const updatePluginConfig = async () => {
-    console.log('updatePluginConfig', deviceList.value);
-    const res = await window.homebridge.updatePluginConfig([
-        {
-            name: 'homebridge-plugin-ihost',
-            platform: 'IhostPlatform',
-            devices: deviceList.value
-        }
-    ]);
-    console.log(res);
+// 获取当前插件配置文件信息
+const configDevicesList = ref<deviceListItem[]>();
+const getPluginConfig = async () => {
+    const config = await window.homebridge.getPluginConfig();
+    console.log('getPluginConfig', config);
+    configDevicesList.value = config[0].devices;
+    enableDeviceLog.value = config[0].enableDeviceLog;
 };
-// const res = await window.homebridge.updatePluginConfig([{ name: 'homebridge-plugin-ihost', devices }]);
-// console.log('🚀 ~ file: App.vue:39 ~ click2 ~ res', res);
 </script>
 
 <style lang="scss" scoped>
