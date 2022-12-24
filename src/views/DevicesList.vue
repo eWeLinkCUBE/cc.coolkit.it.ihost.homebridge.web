@@ -1,7 +1,7 @@
 <template>
     <!-- 无token时展示 -->
     <div class="unable-get-device title" v-if="!token">{{ t('DEVICES.UNABLE_GET_DEVICE') }}</div>
-    <InvalidToken v-else-if="isExpire" />
+    <InvalidToken v-else-if="token && isExpire" />
     <div v-else>
         <!-- 有token无设备时展示 -->
         <p class="no-device title" v-if="!deviceList.length">{{ t('DEVICES.NO_DEVICE') }}</p>
@@ -28,17 +28,18 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted } from '@vue/runtime-core';
 import { useI18n } from 'vue-i18n';
-import { useIHostStore, type iHostListItem } from '@/stores/iHost';
-import { useDeviceStore, type deviceListItem } from '@/stores/device';
 import { storeToRefs } from 'pinia';
+import { useIHostStore } from '@/stores/iHost';
+import { useDeviceStore, type deviceListItem } from '@/stores/device';
 import { updatePluginConfig } from '@/utils/config';
-import { onMounted, ref, toRaw } from '@vue/runtime-core';
+import { getDevicesByAT } from '@/utils/device';
 import InvalidToken from '@/components/InvalidToken.vue';
 
 const { t } = useI18n();
 
-const { iHostList, token, isExpire, successGetTokenMac, enableDeviceLog } = storeToRefs(useIHostStore());
+const { token, isExpire } = storeToRefs(useIHostStore());
 const deviceStore = useDeviceStore();
 const { deviceList, categoryDeviceList } = storeToRefs(deviceStore);
 // 注意！！！
@@ -55,36 +56,9 @@ const handleSingleChange = (v: string, e: any) => {
     deviceStore.updateDevicesListChecked(v, checked);
     updatePluginConfig();
 };
-//	根据access_token获取 openapi设备
-const getDevicesByAT = async () => {
-    const { ip } = iHostList.value.find((v) => v.mac === successGetTokenMac.value) as iHostListItem;
-    const config = { ip, at: token.value };
-    const { error, data } = await window.homebridge.request('/getDevices', config);
-    if (error === 0) {
-        console.log('根据at获取设备成功', data)
-        await getPluginConfig();
-        const formatDeviceList = data.device_list.map((item: any) => {
-            const { name, serial_number, display_category } = item;
-            const checked = configDevicesList.value?.find((v) => v.serial_number === serial_number)?.checked ?? true;
-            return { name, serial_number, display_category, checked };
-        });
-        deviceList.value = formatDeviceList;
-    } else if (error === 401) {
-        console.log('token过期');
-        isExpire.value = true;
-    }
-};
 onMounted(() => {
-   token.value && getDevicesByAT();
+    token.value && getDevicesByAT();
 });
-// 获取当前插件配置文件信息
-const configDevicesList = ref<deviceListItem[]>();
-const getPluginConfig = async () => {
-    const config = await window.homebridge.getPluginConfig();
-    console.log('getPluginConfig', config);
-    configDevicesList.value = config[0].devices;
-    enableDeviceLog.value = config[0].enableDeviceLog;
-};
 </script>
 
 <style lang="scss" scoped>

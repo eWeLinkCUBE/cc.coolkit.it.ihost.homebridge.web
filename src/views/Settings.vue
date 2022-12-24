@@ -13,7 +13,7 @@
             <li>{{ t('SETTINGS.TIP_2') }}</li>
         </ul>
         <!-- 无效token提示 -->
-        <InvalidToken v-if="isExpire" />
+        <InvalidToken v-if="token && isExpire" />
         <!-- iHost卡片区域 -->
         <div class="card-wrapper">
             <div class="card" v-for="(item, index) in iHostList" :key="index">
@@ -22,11 +22,12 @@
                     <p class="card-text">IP: {{ item.ip }}</p>
                     <p class="card-text">MAC: {{ item.mac }}</p>
                     <button
-                        :class="['btn', 'btn-sm', unableClickGetToken ? 'btn-secondary' : 'btn-primary']"
+                        :class="['btn', 'btn-sm', unableClickGetToken && !getTokenTxt[index].loading ? 'btn-secondary' : 'btn-primary']"
                         @click="handleGetToken(item.mac, item.ip)"
                         :disabled="unableClickGetToken"
                     >
-                        {{ getTokenTxt[index] }}
+                        <span v-if="getTokenTxt[index].loading" class="spinner-border spinner-border-sm text-white"></span>
+                        {{ getTokenTxt[index].txt }}
                     </button>
                 </div>
             </div>
@@ -61,45 +62,54 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from '@vue/runtime-core';
+import { ref, computed, onMounted, watch } from '@vue/runtime-core';
 import { useI18n } from 'vue-i18n';
-import { useIHostStore } from '@/stores/iHost';
+import { useIHostStore, INTERVAL } from '@/stores/iHost';
 import { storeToRefs } from 'pinia';
-import { updatePluginConfig } from '@/utils/config'
+import { updatePluginConfig } from '@/utils/config';
 import { formatSecondToMinute } from '@/utils/time';
+import { getDevicesByAT } from '@/utils/device';
 import InvalidToken from '@/components/InvalidToken.vue';
 
 const { t } = useI18n();
 const iHostStore = useIHostStore();
-const { iHostList, token, isExpire, getTokenTime, getTokenMac, successGetTokenMac, interval, enableDeviceLog } = storeToRefs(iHostStore);
+const { iHostList, token, isExpire, getTokenTime, getTokenMac, successGetTokenMac, enableDeviceLog } = storeToRefs(iHostStore);
 // 距上次获取token过去的时间
 const actualInterval = ref(Math.floor((Date.now() - getTokenTime.value) / 1000));
 // 是否处于倒计时中
-const isInCountDown = computed(() => actualInterval.value < interval.value);
+const isInCountDown = computed(() => actualInterval.value < INTERVAL);
+// 判断token是否有效
+const isTokenValid = computed(() => !!(token.value && !isExpire.value));
 // 是否禁用获取token按钮
-const unableClickGetToken = ref(!isExpire.value || actualInterval.value < interval.value);
+const unableClickGetToken = ref(isTokenValid.value || isInCountDown.value);
+watch(isExpire, () => {
+    unableClickGetToken.value = isTokenValid.value || isInCountDown.value;
+});
 // 获取token按钮文案
 const getTokenTxt = computed(() => {
     return iHostList.value.map((v) => {
-        if (v.mac === getTokenMac.value && isInCountDown.value) {
-            return countDownTxt.value;
+        const txtConfig = { loading: false, txt: t('SETTINGS.GET_TOKEN') };
+        if (!isTokenValid.value && v.mac === getTokenMac.value && isInCountDown.value) {
+            txtConfig.loading = true;
+            txtConfig.txt = countDownTxt.value;
         } else if (v.mac === successGetTokenMac.value) {
-            return isExpire.value ? t('SETTINGS.RE_GET_TOKEN') : t('SETTINGS.ALREADY_GET_TOKEN');
+            txtConfig.txt = isTokenValid.value ? t('SETTINGS.ALREADY_GET_TOKEN') : t('SETTINGS.RE_GET_TOKEN');
         }
-        return t('SETTINGS.GET_TOKEN');
+        return txtConfig;
     });
 });
 // 倒计时
 const timer = ref<number>();
-const initCount = isInCountDown.value ? interval.value - actualInterval.value : interval.value;
+const initCount = isInCountDown.value ? INTERVAL - actualInterval.value : INTERVAL;
 const count = ref(initCount);
 const countDownTxt = computed(() => formatSecondToMinute(count.value));
 const countDown = () => {
+    actualInterval.value = Math.floor((Date.now() - getTokenTime.value) / 1000);
     timer.value = setInterval(() => {
         if (count.value === 0) {
             unableClickGetToken.value = false;
             clearInterval(timer.value);
-            count.value = interval.value;
+            count.value = INTERVAL;
             return;
         }
         count.value--;
@@ -108,7 +118,7 @@ const countDown = () => {
     }, 1000);
 };
 // 点击获取token按钮
-const getTokenIP = computed(() => iHostList.value.find(v => v.mac === getTokenMac.value)?.ip ?? '')
+const getTokenIP = computed(() => iHostList.value.find((v) => v.mac === getTokenMac.value)?.ip ?? '');
 const handleGetToken = (mac: string, ip: string) => {
     unableClickGetToken.value = true;
     getTokenTime.value = Date.now();
@@ -119,11 +129,15 @@ const handleGetToken = (mac: string, ip: string) => {
 const getAccessToken = async (mac: string, ip: string) => {
     const { error, data } = await window.homebridge.request('/getAccessToken', ip);
     if (error === 0) {
-        console.log('accessToken', data.token);
+        console.log('token ===>', data.token);
         token.value = data.token;
         clearInterval(timer.value);
+        count.value = INTERVAL;
+        actualInterval.value = INTERVAL;
         unableClickGetToken.value = true;
         successGetTokenMac.value = mac;
+        isExpire.value = false;
+        getDevicesByAT();
     }
 };
 onMounted(() => {
@@ -149,7 +163,7 @@ const handleLink = async () => {
 // 是否显示设备日志
 const handleChange = (e: any) => {
     enableDeviceLog.value = e.target.checked;
-    updatePluginConfig()
+    updatePluginConfig();
 };
 </script>
 
@@ -186,6 +200,9 @@ const handleChange = (e: any) => {
             .btn {
                 width: 100%;
                 margin-top: 10px;
+                .spinner-border {
+                    margin-right: 6px;
+                }
             }
         }
         .searchIHost {
