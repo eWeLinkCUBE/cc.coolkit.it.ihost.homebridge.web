@@ -107,12 +107,12 @@ const countDown = () => {
     actualInterval.value = Math.floor((Date.now() - getTokenTime.value) / 1000);
     timer.value = setInterval(() => {
         if (count.value === 0) {
-            unableClickGetToken.value = false;
             clearInterval(timer.value);
             count.value = INTERVAL;
             return;
         }
         count.value--;
+        count.value === 0 && (unableClickGetToken.value = false);
         actualInterval.value = Math.floor((Date.now() - getTokenTime.value) / 1000);
         getAccessToken(getTokenMac.value, getTokenIP.value);
     }, 1000);
