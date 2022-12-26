@@ -41,13 +41,15 @@ watch(isVerify, () => {
         isExpire.value ? queryMdns() : iHostStore.getCurrentIHost();
     }
 });
+// 监听查询mdns结果
 window.homebridge.addEventListener('getMdnsDevices', (event: any) => {
     console.log('get iHost success ===> ', event.data);
     const data = event.data.map((v: any) => ({ ...v, mac: '202212250826' }));
     iHostStore.addIHost(data);
 });
-//	发起mdns查询，只发起查询
+//	发起mdns查询
 const queryMdns = async () => {
+    console.log('开始发起mdns查询');
     await window.homebridge.request('/queryMdns');
 };
 </script>

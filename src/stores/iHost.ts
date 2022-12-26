@@ -18,7 +18,7 @@ interface iHostStoreState {
 }
 
 // 间隔时间（秒）
-export const INTERVAL = 20;
+export const INTERVAL = 5 * 60;
 
 const iHostList = [
     { name: 'iHost', ip: '192.168.2.25', mac: '111111' },

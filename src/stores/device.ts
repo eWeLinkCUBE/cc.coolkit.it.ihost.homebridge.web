@@ -6,7 +6,7 @@ const { t } = i18n.global;
 const categoryMap = new Map([
     [t('DEVICES.SWITCH'), ['button', 'plug', 'switch']],
     [t('DEVICES.LIGHT'), ['light']],
-    [t('DEVICES.SENSOR'), ['smokeDetector', 'contactSensor', 'temperatureAndHumiditySensor', 'waterLeakDetector']],
+    [t('DEVICES.SENSOR'), ['smokeDetector', 'contactSensor', 'motionSensor', 'temperatureSensor', 'humiditySensor', 'temperatureAndHumiditySensor', 'waterLeakDetector']],
     [t('DEVICES.CURTAIN'), ['curtain']]
 ]);
 

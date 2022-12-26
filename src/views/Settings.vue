@@ -45,9 +45,11 @@
                 <button type="button" class="btn-close" @click="closeAddIHostModal"></button>
             </div>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" v-model.trim="inputIP" :placeholder="t('SETTINGS.ADD_IHOST_PLACEHOLDER')" />
-                <span :class="['input-group-text', unableClickGetToken ? 'not-allowed' : 'pointer']" @click="handleLink">Link</span>
+                <input type="text" class="form-control" v-model.trim="inputIP" :placeholder="t('SETTINGS.ADD_IHOST_PLACEHOLDER')" @input="handleLinkIHostInput" />
+                <span :class="['input-group-text', unableClickGetToken || !validIP ? 'not-allowed' : 'pointer']" @click="handleLink">Link</span>
             </div>
+            <span class="error-tip" v-if="showIrregularFormatTip">{{ linkIHostErrorTip }}</span>
+            <span class="error-tip" v-if="showFailLinkIpTip">* IP 连接失败</span>
         </div>
         <!-- log -->
         <span class="label">Log Config</span>
@@ -69,6 +71,7 @@ import { storeToRefs } from 'pinia';
 import { updatePluginConfig } from '@/utils/config';
 import { formatSecondToMinute } from '@/utils/time';
 import { getDevicesByAT } from '@/utils/device';
+import { ipv4 } from '@/utils/regExp';
 import InvalidToken from '@/components/InvalidToken.vue';
 
 const { t } = useI18n();
@@ -152,13 +155,42 @@ const handleClickQueryIHostCard = () => {
     if (unableClickGetToken.value) return;
     showAddIHostModal.value = true;
 };
-const closeAddIHostModal = () => (showAddIHostModal.value = false);
+const closeAddIHostModal = () => {
+    showAddIHostModal.value = false;
+    inputIP.value = '';
+    showIrregularFormatTip.value = false;
+    showFailLinkIpTip.value = false;
+};
 // 根据ip查找iHost
 const inputIP = ref('');
+const validIP = computed(() => inputIP.value && ipv4.test(inputIP.value));
+// 展示ip不规范错误
+const showIrregularFormatTip = ref(false);
+// 展示ip连接ihost失败错误
+const showFailLinkIpTip = ref(false);
+// 错误提示
+const linkIHostErrorTip = computed(() => {
+    if (!inputIP.value) {
+        return '* ip不能为空';
+    } else if (!ipv4.test(inputIP.value)) {
+        return '* 不符合ipv4';
+    }
+});
+const handleLinkIHostInput = () => {
+    showIrregularFormatTip.value = true;
+    showFailLinkIpTip.value = false;
+};
+// click link
 const handleLink = async () => {
-    if (unableClickGetToken.value || !inputIP.value) return;
-    const res = await window.homebridge.request('/getDeviceByIp', inputIP.value);
-    iHostStore.addIHost(res);
+    if (unableClickGetToken.value || !validIP.value) return;
+    const { error, data } = await window.homebridge.request('/getDeviceByIp', inputIP.value);
+    showIrregularFormatTip.value = false;
+    if (error === 0) {
+        showFailLinkIpTip.value = false;
+        iHostStore.addIHost(data);
+    } else {
+        showFailLinkIpTip.value = true;
+    }
 };
 // 是否显示设备日志
 const handleChange = (e: any) => {
@@ -225,6 +257,9 @@ const handleChange = (e: any) => {
             display: flex;
             justify-content: space-between;
             margin-bottom: 16px;
+        }
+        .error-tip {
+            color: #c22727;
         }
     }
     .check-desc {
