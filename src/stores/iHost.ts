@@ -10,7 +10,6 @@ interface iHostStoreState {
     iHostList: iHostListItem[];
     token: string;
     isExpire: boolean;
-    isVerify: boolean;
     getTokenTime: number;
     getTokenMac: string;
     successGetTokenMac: string;
@@ -20,12 +19,6 @@ interface iHostStoreState {
 // 间隔时间（秒）
 export const INTERVAL = 5 * 60;
 
-const iHostList = [
-    { name: 'iHost', ip: '192.168.2.25', mac: '111111' },
-    { name: 'iHost', ip: '192.168.2.25', mac: '222222' },
-    { name: 'iHost', ip: '192.168.2.25', mac: '333333' }
-];
-
 export const useIHostStore = defineStore({
     id: 'iHost',
     state(): iHostStoreState {
@@ -33,7 +26,6 @@ export const useIHostStore = defineStore({
             iHostList: [],
             token: '',
             isExpire: true, // token是否失效
-            isVerify: false, // 是否验证过token的有效性
             getTokenTime: 0, // 点击获取token按钮的时间
             getTokenMac: '', // 点击了获取token按钮的iHost设备mac
             successGetTokenMac: '', // 成功获取到token的iHost设备MAC
@@ -44,7 +36,9 @@ export const useIHostStore = defineStore({
         // 添加iHost设备
         addIHost(iHost: iHostListItem[]) {
             iHost.forEach((iHostItem) => {
-                const index = this.iHostList.findIndex((item) => item.ip === iHostItem.ip || item.mac === iHostItem.mac);
+                const { ip, mac } = iHostItem;
+                if (!ip) return;
+                const index = this.iHostList.findIndex((item) => item.ip === ip || item.mac === mac);
                 if (index === -1) {
                     this.iHostList.push(iHostItem);
                 }

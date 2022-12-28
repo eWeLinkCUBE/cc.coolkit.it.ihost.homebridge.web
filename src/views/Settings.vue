@@ -64,19 +64,64 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, watch } from '@vue/runtime-core';
+import { ref, computed, onMounted, watch, onUnmounted } from '@vue/runtime-core';
 import { useI18n } from 'vue-i18n';
 import { useIHostStore, INTERVAL } from '@/stores/iHost';
 import { storeToRefs } from 'pinia';
-import { updatePluginConfig } from '@/utils/config';
+import { getPluginConfig, updatePluginConfig } from '@/utils/config';
 import { formatSecondToMinute } from '@/utils/time';
 import { getDevicesByAT } from '@/utils/device';
 import { ipv4 } from '@/utils/regExp';
 import InvalidToken from '@/components/InvalidToken.vue';
+import { useDeviceStore } from '@/stores/device';
 
 const { t } = useI18n();
 const iHostStore = useIHostStore();
+const deviceStore = useDeviceStore();
 const { iHostList, token, isExpire, getTokenTime, getTokenMac, successGetTokenMac, enableDeviceLog } = storeToRefs(iHostStore);
+const { deviceList } = storeToRefs(deviceStore);
+// 进入配置页时更新信息
+const initConfigInfo = async () => {
+    // 更新pinia的值
+    const config = await getPluginConfig();
+    token.value = config?.at ?? '';
+    successGetTokenMac.value = config?.mac ?? '';
+    enableDeviceLog.value = config?.enableDeviceLog ?? false;
+    deviceList.value = config?.devices ?? [];
+    // 第一次进入配置页时更新name和platform
+    !config.platform && (await updatePluginConfig());
+    if (token.value) {
+        // 目的是为了检验token是否有效
+        await getDevicesByAT();
+        // token失效时开启iHost查询，token有效时展示出对应的iHost
+        if (isExpire.value) {
+            queryMdns();
+        } else {
+            iHostList.value = [
+                {
+                    name: config?.ihostName ?? '',
+                    ip: config?.ip ?? '',
+                    mac: config?.mac ?? ''
+                }
+            ];
+        }
+    } else {
+        // 无token时直接开启iHost查询
+        queryMdns();
+        // const index = iHostList.value.findIndex((v) => v.mac === getTokenMac.value);
+        // if (index !== -1 && isInCountDown.value) {
+        //     countDown();
+        // }
+    }
+};
+initConfigInfo();
+//	发起mdns查询
+const queryMdns = async () => {
+    console.log('开始发起mdns查询');
+    // clearInterval(timer.value);
+    // iHostList.value = [];
+    await window.homebridge.request('/queryMdns');
+};
 // 距上次获取token过去的时间
 const actualInterval = ref(Math.floor((Date.now() - getTokenTime.value) / 1000));
 // 是否处于倒计时中
@@ -85,6 +130,7 @@ const isInCountDown = computed(() => actualInterval.value < INTERVAL);
 const isTokenValid = computed(() => !!(token.value && !isExpire.value));
 // 是否禁用获取token按钮
 const unableClickGetToken = ref(isTokenValid.value || isInCountDown.value);
+console.log('unableClickGetToken', unableClickGetToken.value)
 watch(isExpire, () => {
     unableClickGetToken.value = isTokenValid.value || isInCountDown.value;
 });
@@ -107,6 +153,7 @@ const initCount = isInCountDown.value ? INTERVAL - actualInterval.value : INTERV
 const count = ref(initCount);
 const countDownTxt = computed(() => formatSecondToMinute(count.value));
 const countDown = () => {
+    console.log('轮询开启');
     actualInterval.value = Math.floor((Date.now() - getTokenTime.value) / 1000);
     timer.value = setInterval(() => {
         if (count.value === 0) {
@@ -134,20 +181,25 @@ const getAccessToken = async (mac: string, ip: string) => {
     if (error === 0) {
         console.log('token ===>', data.token);
         token.value = data.token;
+        successGetTokenMac.value = mac;
+        getTokenTime.value = 0;
         clearInterval(timer.value);
         count.value = INTERVAL;
         actualInterval.value = INTERVAL;
         unableClickGetToken.value = true;
-        successGetTokenMac.value = mac;
-        isExpire.value = false;
-        getDevicesByAT();
+        await getDevicesByAT();
+        await updatePluginConfig();
     }
 };
 onMounted(() => {
+    if (isTokenValid.value) return;
     const index = iHostList.value.findIndex((v) => v.mac === getTokenMac.value);
     if (index !== -1 && isInCountDown.value) {
         countDown();
     }
+});
+onUnmounted(() => {
+    clearInterval(timer.value);
 });
 // 是否展示根据ip搜索iHost的模态框
 const showAddIHostModal = ref(false);

@@ -28,13 +28,11 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from '@vue/runtime-core';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { useIHostStore } from '@/stores/iHost';
 import { useDeviceStore, type deviceListItem } from '@/stores/device';
 import { updatePluginConfig } from '@/utils/config';
-import { getDevicesByAT } from '@/utils/device';
 import InvalidToken from '@/components/InvalidToken.vue';
 
 const { t } = useI18n();
@@ -56,9 +54,6 @@ const handleSingleChange = (v: string, e: any) => {
     deviceStore.updateDevicesListChecked(v, checked);
     updatePluginConfig();
 };
-onMounted(() => {
-    token.value && getDevicesByAT();
-});
 </script>
 
 <style lang="scss" scoped>
