@@ -22,10 +22,12 @@ const toggleTab = (num: number) => {
     active.value = num;
 };
 
+window.homebridge.showSpinner();
+
 const iHostStore = useIHostStore();
 // 监听查询mdns结果
 window.homebridge.addEventListener('getMdnsDevices', (event: any) => {
-    console.log('get iHost success ===> ', event.data);
+    console.log('get iHost success ===>', event.data);
     const data = event.data.map((v: any) => ({ ...v, mac: '202212250826' }));
     iHostStore.addIHost(data);
 });

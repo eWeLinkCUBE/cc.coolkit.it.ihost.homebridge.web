@@ -41,13 +41,17 @@ export const useIHostStore = defineStore({
                 const index = this.iHostList.findIndex((item) => item.ip === ip || item.mac === mac);
                 if (index === -1) {
                     this.iHostList.push(iHostItem);
+                } else {
+                    this.iHostList.splice(index, 1, iHostItem);
                 }
             });
         },
-        // 筛选出获取过token并且token当前可用的iHost
-        getCurrentIHost() {
-            const data = this.iHostList.find((v) => v.mac === this.successGetTokenMac) as iHostListItem;
-            this.iHostList = [data];
+        // 更新iHost列表数据
+        updateIHostList(name: string, ip: string, mac: string) {
+            const index = this.iHostList.findIndex((item) => item.mac === mac);
+            if (index !== -1) {
+                this.iHostList.splice(index, 1, { name, ip, mac });
+            }
         }
     },
     persist: {
@@ -55,7 +59,7 @@ export const useIHostStore = defineStore({
         strategies: [
             {
                 storage: localStorage,
-                paths: ['iHostList', 'token', 'isExpire', 'getTokenTime', 'getTokenMac', 'successGetTokenMac']
+                paths: ['iHostList', 'token', 'getTokenTime', 'getTokenMac', 'successGetTokenMac']
             }
         ]
     }

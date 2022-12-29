@@ -23,7 +23,7 @@
                     <p class="card-text">MAC: {{ item.mac }}</p>
                     <button
                         :class="['btn', 'btn-sm', unableClickGetToken && !getTokenTxt[index].loading ? 'btn-secondary' : 'btn-primary']"
-                        @click="handleGetToken(item.mac, item.ip)"
+                        @click="handleGetToken(item.mac)"
                         :disabled="unableClickGetToken"
                     >
                         <span v-if="getTokenTxt[index].loading" class="spinner-border spinner-border-sm text-white"></span>
@@ -64,7 +64,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, watch, onUnmounted } from '@vue/runtime-core';
+import { ref, computed, onMounted, onUnmounted } from '@vue/runtime-core';
 import { useI18n } from 'vue-i18n';
 import { useIHostStore, INTERVAL } from '@/stores/iHost';
 import { storeToRefs } from 'pinia';
@@ -82,45 +82,42 @@ const { iHostList, token, isExpire, getTokenTime, getTokenMac, successGetTokenMa
 const { deviceList } = storeToRefs(deviceStore);
 // 进入配置页时更新信息
 const initConfigInfo = async () => {
+    const { platform = '', ip = '', mac = '', ihostName = '', at = '', enableDeviceLog: log = false, devices = [] } = await getPluginConfig();
     // 更新pinia的值
-    const config = await getPluginConfig();
-    token.value = config?.at ?? '';
-    successGetTokenMac.value = config?.mac ?? '';
-    enableDeviceLog.value = config?.enableDeviceLog ?? false;
-    deviceList.value = config?.devices ?? [];
+    if (ihostName && ip && mac) {
+        iHostStore.updateIHostList(ihostName, ip, mac);
+    }
+    token.value = at;
+    successGetTokenMac.value = mac;
+    enableDeviceLog.value = log;
+    deviceList.value = devices;
     // 第一次进入配置页时更新name和platform
-    !config.platform && (await updatePluginConfig());
+    !platform && (await updatePluginConfig());
     if (token.value) {
         // 目的是为了检验token是否有效
         await getDevicesByAT();
         // token失效时开启iHost查询，token有效时展示出对应的iHost
         if (isExpire.value) {
+            iHostList.value = [];
             queryMdns();
         } else {
-            iHostList.value = [
-                {
-                    name: config?.ihostName ?? '',
-                    ip: config?.ip ?? '',
-                    mac: config?.mac ?? ''
-                }
-            ];
+            iHostList.value = [{ name: ihostName, ip: ip, mac: mac }];
         }
     } else {
         // 无token时直接开启iHost查询
         queryMdns();
-        // const index = iHostList.value.findIndex((v) => v.mac === getTokenMac.value);
-        // if (index !== -1 && isInCountDown.value) {
-        //     countDown();
-        // }
     }
+    window.homebridge.hideSpinner();
 };
-initConfigInfo();
 //	发起mdns查询
 const queryMdns = async () => {
-    console.log('开始发起mdns查询');
-    // clearInterval(timer.value);
-    // iHostList.value = [];
+    console.log('发起mdns查询');
     await window.homebridge.request('/queryMdns');
+};
+// 关闭mdns查询
+const closeMdns = async () => {
+    console.log('关闭mdns查询');
+    await window.homebridge.request('/closeQuery');
 };
 // 距上次获取token过去的时间
 const actualInterval = ref(Math.floor((Date.now() - getTokenTime.value) / 1000));
@@ -129,10 +126,10 @@ const isInCountDown = computed(() => actualInterval.value < INTERVAL);
 // 判断token是否有效
 const isTokenValid = computed(() => !!(token.value && !isExpire.value));
 // 是否禁用获取token按钮
-const unableClickGetToken = ref(isTokenValid.value || isInCountDown.value);
-console.log('unableClickGetToken', unableClickGetToken.value)
-watch(isExpire, () => {
-    unableClickGetToken.value = isTokenValid.value || isInCountDown.value;
+const unableClickGetToken = computed(() => {
+    const condition_1 = !!getTokenMac.value && iHostList.value.some((v) => v.mac === getTokenMac.value);
+    const condition_2 = token.value ? isTokenValid.value : isInCountDown.value;
+    return condition_1 && condition_2;
 });
 // 获取token按钮文案
 const getTokenTxt = computed(() => {
@@ -155,22 +152,23 @@ const countDownTxt = computed(() => formatSecondToMinute(count.value));
 const countDown = () => {
     console.log('轮询开启');
     actualInterval.value = Math.floor((Date.now() - getTokenTime.value) / 1000);
+    closeMdns();
     timer.value = setInterval(() => {
         if (count.value === 0) {
             clearInterval(timer.value);
             count.value = INTERVAL;
+            queryMdns();
             return;
         }
         count.value--;
-        count.value === 0 && (unableClickGetToken.value = false);
         actualInterval.value = Math.floor((Date.now() - getTokenTime.value) / 1000);
+        count.value === 0 && (actualInterval.value = INTERVAL);
         getAccessToken(getTokenMac.value, getTokenIP.value);
     }, 1000);
 };
 // 点击获取token按钮
 const getTokenIP = computed(() => iHostList.value.find((v) => v.mac === getTokenMac.value)?.ip ?? '');
-const handleGetToken = (mac: string, ip: string) => {
-    unableClickGetToken.value = true;
+const handleGetToken = (mac: string) => {
     getTokenTime.value = Date.now();
     getTokenMac.value = mac;
     countDown();
@@ -181,17 +179,18 @@ const getAccessToken = async (mac: string, ip: string) => {
     if (error === 0) {
         console.log('token ===>', data.token);
         token.value = data.token;
+        isExpire.value = false;
         successGetTokenMac.value = mac;
         getTokenTime.value = 0;
         clearInterval(timer.value);
         count.value = INTERVAL;
         actualInterval.value = INTERVAL;
-        unableClickGetToken.value = true;
         await getDevicesByAT();
         await updatePluginConfig();
     }
 };
-onMounted(() => {
+onMounted(async () => {
+    await initConfigInfo();
     if (isTokenValid.value) return;
     const index = iHostList.value.findIndex((v) => v.mac === getTokenMac.value);
     if (index !== -1 && isInCountDown.value) {

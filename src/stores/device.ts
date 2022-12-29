@@ -86,7 +86,6 @@ export const useDeviceStore = defineStore({
     state(): deviceStoreState {
         return {
             deviceList: []
-            // deviceList: deviceList.map((item) => ({ ...item, checked: true }))
         };
     },
     actions: {

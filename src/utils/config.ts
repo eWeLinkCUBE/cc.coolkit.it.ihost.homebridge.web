@@ -15,11 +15,8 @@ interface IConfig {
 }
 // 获取当前插件配置文件信息
 export const getPluginConfig = async (): Promise<IConfig> => {
-    // const { enableDeviceLog } = storeToRefs(useIHostStore());
     const config = await window.homebridge.getPluginConfig();
-    // token.value = config[0]?.at ?? '';
-    // successGetTokenMac.value = config[0]?.mac ?? '';
-    // enableDeviceLog.value = config[0]?.enableDeviceLog ?? false;
+    console.log('getPluginConfig ===>', config[0] ?? {})
     return config[0] ?? {};
 };
 // 更新当前插件配置文件信息
@@ -31,14 +28,14 @@ export const updatePluginConfig = async () => {
         {
             name: 'homebridge-plugin-ihost',
             platform: 'IhostPlatform',
-            ip: listItem?.ip,
-            mac: listItem?.mac,
-            ihostName: listItem?.name,
+            ip: listItem?.ip ?? '',
+            mac: listItem?.mac ?? '',
+            ihostName: listItem?.name ?? '',
             at: token.value,
             isValid: true,
             devices: toRaw(deviceList.value),
             enableDeviceLog: enableDeviceLog.value
         }
     ]);
-    console.log('updatePluginConfig ===> ', res);
+    console.log('updatePluginConfig ===>', res);
 };
