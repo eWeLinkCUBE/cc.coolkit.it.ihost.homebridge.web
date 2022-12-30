@@ -1,25 +1,33 @@
 <template>
-    <!-- 无token时展示 -->
-    <div class="unable-get-device title" v-if="!token">{{ t('DEVICES.UNABLE_GET_DEVICE') }}</div>
-    <InvalidToken v-else-if="token && isExpire" />
-    <div v-else>
-        <!-- 有token无设备时展示 -->
-        <p class="no-device title" v-if="!deviceList.length">{{ t('DEVICES.NO_DEVICE') }}</p>
-        <!-- 有token有设备时展示 -->
-        <div class="device-wrapper" v-else>
-            <p class="title">设备设置</p>
-            <p class="tip">{{ t('DEVICES.TIP') }}</p>
-            <div class="device-list">
-                <div class="form-check" v-for="(item, index) in categoryDeviceList" :key="index">
-                    <!-- 设备类别 -->
-                    <a class="collapse-icon" data-bs-toggle="collapse" :href="'#' + item.categoryName">&gt;</a>
-                    <input class="form-check-input" type="checkbox" @change="handleTotalChange(item.device, $event)" :checked="item.checked" />
-                    <label class="form-check-label categoryName">{{ item.categoryName }}</label>
-                    <!-- 类别下的具体设备 -->
-                    <div class="collapse show" :id="item.categoryName" v-for="item1 in item.device" :key="item1.serial_number">
-                        <input class="form-check-input" type="checkbox" :checked="item1.checked" @change="handleSingleChange(item1.serial_number, $event)" />
-                        <label class="form-check-label">{{ item1.name }}</label>
-                        <p class="deviceid">ID: {{ item1.serial_number }}</p>
+    <div class="devices-list-wrapper">
+        <InvalidToken v-if="token && isExpire" style="margin-bottom: 10px" />
+        <!-- 无token时展示 -->
+        <div class="unable-get-device title" v-if="!token">{{ t('DEVICES.UNABLE_GET_DEVICE') }}</div>
+        <div v-else>
+            <!-- 有token无设备时展示 -->
+            <p class="no-device title" v-if="!deviceList.length">{{ t('DEVICES.NO_DEVICE') }}</p>
+            <!-- 有token有设备时展示 -->
+            <div class="device-wrapper" v-else>
+                <p class="title">设备设置</p>
+                <p class="tip help-block">{{ t('DEVICES.TIP') }}</p>
+                <div class="device-list">
+                    <div class="form-check" v-for="(item, index) in categoryDeviceList" :key="index">
+                        <!-- 设备类别 -->
+                        <a class="collapse-icon help-block" data-bs-toggle="collapse" :href="'#' + item.categoryName">&gt;</a>
+                        <input class="form-check-input" type="checkbox" @change="handleTotalChange(item.device, $event)" :checked="item.checked" :disabled="!!token && isExpire" />
+                        <label class="form-check-label categoryName">{{ item.categoryName }}</label>
+                        <!-- 类别下的具体设备 -->
+                        <div class="collapse show" :id="item.categoryName" v-for="item1 in item.device" :key="item1.serial_number">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                :checked="item1.checked"
+                                @change="handleSingleChange(item1.serial_number, $event)"
+                                :disabled="!!token && isExpire"
+                            />
+                            <label class="form-check-label">{{ item1.name }}</label>
+                            <p class="deviceid help-block">ID: {{ item1.serial_number }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -58,7 +66,6 @@ const handleSingleChange = (v: string, e: any) => {
 
 <style lang="scss" scoped>
 .title {
-    color: #333;
     font-weight: 600;
 }
 .device-wrapper {
@@ -74,11 +81,11 @@ const handleSingleChange = (v: string, e: any) => {
         left: 0;
         top: 0;
         margin-bottom: 8px;
-        color: #4d4d4d;
+        // color: #4d4d4d;
     }
-    .form-check-label {
-        color: #333;
-    }
+    // .form-check-label {
+    //     color: #333;
+    // }
     .categoryName {
         margin-bottom: 8px;
     }

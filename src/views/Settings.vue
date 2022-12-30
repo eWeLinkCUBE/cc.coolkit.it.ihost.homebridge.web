@@ -1,14 +1,14 @@
 <template>
     <div class="settings">
         <span class="label">token*</span>
-        <p class="getTokenTip">{{ t('SETTINGS.GET_TOKEN_TIP') }}</p>
+        <p class="help-block">{{ t('SETTINGS.GET_TOKEN_TIP') }}</p>
         <div class="img-wrapper">
             <img src="" alt="" />
         </div>
-        <p class="step">{{ t('SETTINGS.STEP_1') }}</p>
-        <p class="step">{{ t('SETTINGS.STEP_2') }}</p>
-        <p class="step">TIPS</p>
-        <ul class="tip">
+        <p class="help-block">{{ t('SETTINGS.STEP_1') }}</p>
+        <p class="help-block">{{ t('SETTINGS.STEP_2') }}</p>
+        <p class="help-block">TIPS</p>
+        <ul class="help-block">
             <li>{{ t('SETTINGS.TIP_1') }}</li>
             <li>{{ t('SETTINGS.TIP_2') }}</li>
         </ul>
@@ -39,14 +39,14 @@
             </div>
         </div>
         <!-- 根据ip搜寻iHost -->
-        <div class="link-iHost" v-if="showAddIHostModal">
+        <div class="link-iHost" v-if="!unableClickGetToken && showAddIHostModal">
             <div class="title">
                 <span>iHost</span>
                 <button type="button" class="btn-close" @click="closeAddIHostModal"></button>
             </div>
             <div class="input-group mb-3">
                 <input type="text" class="form-control" v-model.trim="inputIP" :placeholder="t('SETTINGS.ADD_IHOST_PLACEHOLDER')" @input="handleLinkIHostInput" />
-                <span :class="['input-group-text', unableClickGetToken || !validIP ? 'not-allowed' : 'pointer']" @click="handleLink">Link</span>
+                <span :class="['input-group-text', !validIP ? 'not-allowed' : 'pointer']" @click="handleLink">Link</span>
             </div>
             <span class="error-tip" v-if="showIrregularFormatTip">{{ linkIHostErrorTip }}</span>
             <span class="error-tip" v-if="showFailLinkIpTip">* IP 连接失败</span>
@@ -59,7 +59,7 @@
                 <span class="step">{{ t('SETTINGS.LOG_FEAT') }}</span>
             </label>
         </div>
-        <span class="check-desc">{{ t('SETTINGS.LOG_DESC') }}</span>
+        <span class="check-desc help-block">{{ t('SETTINGS.LOG_DESC') }}</span>
     </div>
 </template>
 
@@ -98,7 +98,7 @@ const initConfigInfo = async () => {
         await getDevicesByAT();
         // token失效时开启iHost查询，token有效时展示出对应的iHost
         if (isExpire.value) {
-            iHostList.value = [];
+            // iHostList.value = [];
             queryMdns();
         } else {
             iHostList.value = [{ name: ihostName, ip: ip, mac: mac }];
@@ -128,7 +128,7 @@ const isTokenValid = computed(() => !!(token.value && !isExpire.value));
 // 是否禁用获取token按钮
 const unableClickGetToken = computed(() => {
     const condition_1 = !!getTokenMac.value && iHostList.value.some((v) => v.mac === getTokenMac.value);
-    const condition_2 = token.value ? isTokenValid.value : isInCountDown.value;
+    const condition_2 = token.value ? (isTokenValid.value || isInCountDown.value) : isInCountDown.value;
     return condition_1 && condition_2;
 });
 // 获取token按钮文案
@@ -234,7 +234,11 @@ const handleLinkIHostInput = () => {
 // click link
 const handleLink = async () => {
     if (unableClickGetToken.value || !validIP.value) return;
+    await closeMdns()
+    // const res = await window.homebridge.request('/getDeviceByIp', inputIP.value);
+    // console.log('handleLink ==>', res)
     const { error, data } = await window.homebridge.request('/getDeviceByIp', inputIP.value);
+    console.log('click link', { error, data });
     showIrregularFormatTip.value = false;
     if (error === 0) {
         showFailLinkIpTip.value = false;
@@ -253,7 +257,6 @@ const handleChange = (e: any) => {
 <style lang="scss" scoped>
 .settings {
     .label {
-        color: #333;
         font-weight: 600;
     }
     .img-wrapper {
@@ -264,9 +267,6 @@ const handleChange = (e: any) => {
             width: 100%;
             height: 100%;
         }
-    }
-    .step {
-        color: #555;
     }
     .card-wrapper {
         display: flex;

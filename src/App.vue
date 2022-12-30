@@ -3,7 +3,7 @@
         <button :class="['settings', 'btn', active === 0 ? 'btn-primary' : 'btn-secondary']" @click="toggleTab(0)">SETTINGS</button>
         <button :class="['devicesList', 'btn', active === 1 ? 'btn-primary' : 'btn-secondary']" @click="toggleTab(1)">Devices List</button>
     </div>
-    <div class="content">
+    <div class="content card">
         <Settings v-show="active === 0" />
         <DevicesList v-show="active === 1" />
     </div>
@@ -36,12 +36,6 @@ window.homebridge.addEventListener('getMdnsDevices', (event: any) => {
 <style>
 @import url('./assets/style/common.scss');
 @import url('./assets/style/reset-bootstrap.scss');
-#app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    color: #808080;
-}
 .header-tab {
     display: flex;
     padding: 10px;
@@ -58,6 +52,5 @@ window.homebridge.addEventListener('getMdnsDevices', (event: any) => {
     margin: 10px;
     padding: 10px;
     font-size: 14px;
-    box-shadow: 0 2px 5px #00000029, 0 2px 10px #0000001f;
 }
 </style>
