@@ -46,7 +46,10 @@
             </div>
             <div class="input-group mb-3">
                 <input type="text" class="form-control" v-model.trim="inputIP" :placeholder="t('SETTINGS.ADD_IHOST_PLACEHOLDER')" @input="handleLinkIHostInput" />
-                <span :class="['input-group-text', !validIP ? 'not-allowed' : 'pointer']" @click="handleLink">Link</span>
+                <span :class="['input-group-text', !validIP ? 'not-allowed' : 'pointer']" @click="handleLink">
+                    <span v-if="loadingLink" class="spinner-border spinner-border-sm text-white"></span>
+                    <span v-else>Link</span>
+                </span>
             </div>
             <span class="error-tip" v-if="showIrregularFormatTip">{{ linkIHostErrorTip }}</span>
             <span class="error-tip" v-if="showFailLinkIpTip">* IP 连接失败</span>
@@ -128,7 +131,7 @@ const isTokenValid = computed(() => !!(token.value && !isExpire.value));
 // 是否禁用获取token按钮
 const unableClickGetToken = computed(() => {
     const condition_1 = !!getTokenMac.value && iHostList.value.some((v) => v.mac === getTokenMac.value);
-    const condition_2 = token.value ? (isTokenValid.value || isInCountDown.value) : isInCountDown.value;
+    const condition_2 = token.value ? isTokenValid.value || isInCountDown.value : isInCountDown.value;
     return condition_1 && condition_2;
 });
 // 获取token按钮文案
@@ -214,6 +217,7 @@ const closeAddIHostModal = () => {
 };
 // 根据ip查找iHost
 const inputIP = ref('');
+const loadingLink = ref(false);
 const validIP = computed(() => inputIP.value && ipv4.test(inputIP.value));
 // 展示ip不规范错误
 const showIrregularFormatTip = ref(false);
@@ -233,12 +237,12 @@ const handleLinkIHostInput = () => {
 };
 // click link
 const handleLink = async () => {
-    if (unableClickGetToken.value || !validIP.value) return;
-    await closeMdns()
+    if (unableClickGetToken.value || !validIP.value || loadingLink.value) return;
+    loadingLink.value = true;
+    await closeMdns();
     // const res = await window.homebridge.request('/getDeviceByIp', inputIP.value);
     // console.log('handleLink ==>', res)
     const { error, data } = await window.homebridge.request('/getDeviceByIp', inputIP.value);
-    console.log('click link', { error, data });
     showIrregularFormatTip.value = false;
     if (error === 0) {
         showFailLinkIpTip.value = false;
@@ -246,6 +250,7 @@ const handleLink = async () => {
     } else {
         showFailLinkIpTip.value = true;
     }
+    loadingLink.value = false;
 };
 // 是否显示设备日志
 const handleChange = (e: any) => {
@@ -308,6 +313,11 @@ const handleChange = (e: any) => {
             display: flex;
             justify-content: space-between;
             margin-bottom: 16px;
+        }
+        .input-group-text {
+            display: flex;
+            justify-content: center;
+            width: 54px;
         }
         .error-tip {
             color: #c22727;
