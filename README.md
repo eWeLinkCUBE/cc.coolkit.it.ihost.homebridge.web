@@ -1,19 +1,8 @@
-# vue-for-homebridge
+**queryMdns服务开启时机**
+- 无token
+- token存在但过期
+- 获取token的轮询倒计时结束
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+**queryMdns服务关闭时机**
+- 轮询开启
+- 根据ip搜索iHost

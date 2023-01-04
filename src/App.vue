@@ -52,5 +52,6 @@ window.homebridge.addEventListener('getMdnsDevices', (event: any) => {
     margin: 10px;
     padding: 10px;
     font-size: 14px;
+    border: none;
 }
 </style>

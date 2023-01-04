@@ -1,19 +1,25 @@
 <template>
     <div class="devices-list-wrapper">
-        <InvalidToken v-if="token && isExpire" style="margin-bottom: 10px" />
         <!-- 无token时展示 -->
         <div class="unable-get-device title" v-if="!token">{{ t('DEVICES.UNABLE_GET_DEVICE') }}</div>
         <div v-else>
+            <!-- token失效 -->
+            <InvalidToken v-if="isExpire" style="margin-bottom: 10px" />
             <!-- 有token无设备时展示 -->
-            <p class="no-device title" v-if="!deviceList.length">{{ t('DEVICES.NO_DEVICE') }}</p>
+            <div class="no-device title" v-if="!isExpire && !deviceList.length">
+                <img src="../assets/image/no-device.png" alt="" />
+                <p>{{ t('DEVICES.NO_DEVICE') }}</p>
+            </div>
             <!-- 有token有设备时展示 -->
-            <div class="device-wrapper" v-else>
+            <div class="device-wrapper" v-if="deviceList.length">
                 <p class="title">设备设置</p>
                 <p class="tip help-block">{{ t('DEVICES.TIP') }}</p>
                 <div class="device-list">
                     <div class="form-check" v-for="(item, index) in categoryDeviceList" :key="index">
                         <!-- 设备类别 -->
-                        <a class="collapse-icon help-block" data-bs-toggle="collapse" :href="'#' + item.categoryName">&gt;</a>
+                        <a class="collapse-icon help-block" data-bs-toggle="collapse" :href="'#' + item.categoryName" @click="collapse(index)">
+                            <img :src="imgArr[index]" alt="" />
+                        </a>
                         <input class="form-check-input" type="checkbox" @change="handleTotalChange(item.device, $event)" :checked="item.checked" :disabled="!!token && isExpire" />
                         <label class="form-check-label categoryName">{{ item.categoryName }}</label>
                         <!-- 类别下的具体设备 -->
@@ -36,18 +42,26 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from '@vue/reactivity';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { useIHostStore } from '@/stores/iHost';
 import { useDeviceStore, type deviceListItem } from '@/stores/device';
 import { updatePluginConfig } from '@/utils/config';
 import InvalidToken from '@/components/InvalidToken.vue';
+import expendSrc from '@/assets/image/expend.png';
+import collapseSrc from '@/assets/image/collapse.png';
 
 const { t } = useI18n();
 
 const { token, isExpire } = storeToRefs(useIHostStore());
 const deviceStore = useDeviceStore();
 const { deviceList, categoryDeviceList } = storeToRefs(deviceStore);
+// 折叠图标
+const imgArr = ref(categoryDeviceList.value.map(() => expendSrc));
+const collapse = (index: number) => {
+    imgArr.value[index] = imgArr.value[index] === expendSrc ? collapseSrc : expendSrc;
+};
 // 注意！！！
 // 任何有关于config的修改，都需要先调用updatePluginConfig方法，这样在点击保存时，才能正确将config写入磁盘
 // 勾选设备类别
@@ -68,6 +82,15 @@ const handleSingleChange = (v: string, e: any) => {
 .title {
     font-weight: 600;
 }
+.no-device {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    img {
+        width: 190px;
+        height: 190px;
+    }
+}
 .device-wrapper {
     .tip {
         margin: 6px 0;
@@ -75,26 +98,29 @@ const handleSingleChange = (v: string, e: any) => {
 }
 .form-check {
     position: relative;
-    padding-left: 36px;
+    margin-bottom: 20px;
     .collapse-icon {
         position: absolute;
-        left: 0;
-        top: 0;
-        margin-bottom: 8px;
-        // color: #4d4d4d;
+        right: 0;
+        top: -2px;
+        img {
+            width: 16px;
+            height: 16px;
+        }
     }
-    // .form-check-label {
-    //     color: #333;
-    // }
     .categoryName {
+        margin-top: -4px;
         margin-bottom: 8px;
+        font-size: 18px;
     }
     .collapse {
         margin-bottom: 8px;
         .deviceid {
-            margin-left: -20px;
             font-size: 12px;
         }
     }
+}
+.form-check:last-child {
+    margin-bottom: 0;
 }
 </style>

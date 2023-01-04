@@ -7,7 +7,7 @@
         </div>
         <p class="help-block">{{ t('SETTINGS.STEP_1') }}</p>
         <p class="help-block">{{ t('SETTINGS.STEP_2') }}</p>
-        <p class="help-block">TIPS</p>
+        <p class="help-block">tips</p>
         <ul class="help-block">
             <li>{{ t('SETTINGS.TIP_1') }}</li>
             <li>{{ t('SETTINGS.TIP_2') }}</li>
@@ -27,13 +27,14 @@
                         :disabled="unableClickGetToken"
                     >
                         <span v-if="getTokenTxt[index].loading" class="spinner-border spinner-border-sm text-white"></span>
+                        <img v-else-if="getTokenTxt[index].again" src="../assets/image/reget-icon.png" alt="" class="reget-icon" />
                         {{ getTokenTxt[index].txt }}
                     </button>
                 </div>
             </div>
             <div class="card">
                 <div :class="['card-body', 'searchIHost', unableClickGetToken ? 'not-allowed' : 'pointer']" @click="handleClickQueryIHostCard">
-                    <img src="" alt="" class="search-icon" />
+                    <img src="../assets/image/search.png" alt="" class="search-icon" />
                     <span class="search-txt">{{ t('SETTINGS.QUERY_IHOST') }}</span>
                 </div>
             </div>
@@ -44,7 +45,7 @@
                 <span>iHost</span>
                 <button type="button" class="btn-close" @click="closeAddIHostModal"></button>
             </div>
-            <div class="input-group mb-3">
+            <div class="input-group mb-3 link-iHost-input">
                 <input type="text" class="form-control" v-model.trim="inputIP" :placeholder="t('SETTINGS.ADD_IHOST_PLACEHOLDER')" @input="handleLinkIHostInput" />
                 <span :class="['input-group-text', !validIP ? 'not-allowed' : 'pointer']" @click="handleLink">
                     <span v-if="loadingLink" class="spinner-border spinner-border-sm text-white"></span>
@@ -52,7 +53,7 @@
                 </span>
             </div>
             <span class="error-tip" v-if="showIrregularFormatTip">{{ linkIHostErrorTip }}</span>
-            <span class="error-tip" v-if="showFailLinkIpTip">* IP 连接失败</span>
+            <span class="error-tip" v-else-if="showFailLinkIpTip">{{ t('SETTINGS.LINK_FAILED') }}</span>
         </div>
         <!-- log -->
         <span class="label">Log Config</span>
@@ -137,12 +138,17 @@ const unableClickGetToken = computed(() => {
 // 获取token按钮文案
 const getTokenTxt = computed(() => {
     return iHostList.value.map((v) => {
-        const txtConfig = { loading: false, txt: t('SETTINGS.GET_TOKEN') };
+        const txtConfig = { loading: false, again: false, txt: t('SETTINGS.GET_TOKEN') };
         if (!isTokenValid.value && v.mac === getTokenMac.value && isInCountDown.value) {
             txtConfig.loading = true;
             txtConfig.txt = countDownTxt.value;
         } else if (v.mac === successGetTokenMac.value) {
-            txtConfig.txt = isTokenValid.value ? t('SETTINGS.ALREADY_GET_TOKEN') : t('SETTINGS.RE_GET_TOKEN');
+            if (isTokenValid.value) {
+                txtConfig.txt = t('SETTINGS.ALREADY_GET_TOKEN');
+            } else {
+                txtConfig.again = true;
+                txtConfig.txt = t('SETTINGS.RE_GET_TOKEN');
+            }
         }
         return txtConfig;
     });
@@ -166,18 +172,18 @@ const countDown = () => {
         count.value--;
         actualInterval.value = Math.floor((Date.now() - getTokenTime.value) / 1000);
         count.value === 0 && (actualInterval.value = INTERVAL);
-        getAccessToken(getTokenMac.value, getTokenIP.value);
+        getAccessToken(getTokenMac.value);
     }, 1000);
 };
 // 点击获取token按钮
-const getTokenIP = computed(() => iHostList.value.find((v) => v.mac === getTokenMac.value)?.ip ?? '');
 const handleGetToken = (mac: string) => {
     getTokenTime.value = Date.now();
     getTokenMac.value = mac;
     countDown();
 };
 //	获取access_token
-const getAccessToken = async (mac: string, ip: string) => {
+const getAccessToken = async (mac: string) => {
+    const ip = iHostList.value.find((v) => v.mac === getTokenMac.value)?.ip ?? '';
     const { error, data } = await window.homebridge.request('/getAccessToken', ip);
     if (error === 0) {
         console.log('token ===>', data.token);
@@ -226,9 +232,9 @@ const showFailLinkIpTip = ref(false);
 // 错误提示
 const linkIHostErrorTip = computed(() => {
     if (!inputIP.value) {
-        return '* ip不能为空';
+        return t('SETTINGS.INPUT_NULL');
     } else if (!ipv4.test(inputIP.value)) {
-        return '* 不符合ipv4';
+        return t('SETTINGS.NOT_MATCH_IPV4');
     }
 });
 const handleLinkIHostInput = () => {
@@ -245,8 +251,8 @@ const handleLink = async () => {
     const { error, data } = await window.homebridge.request('/getDeviceByIp', inputIP.value);
     showIrregularFormatTip.value = false;
     if (error === 0) {
-        showFailLinkIpTip.value = false;
         iHostStore.addIHost(data);
+        closeAddIHostModal();
     } else {
         showFailLinkIpTip.value = true;
     }
@@ -291,6 +297,10 @@ const handleChange = (e: any) => {
                 .spinner-border {
                     margin-right: 6px;
                 }
+                .reget-icon {
+                    width: 18px;
+                    height: 18px;
+                }
             }
         }
         .searchIHost {
@@ -313,6 +323,9 @@ const handleChange = (e: any) => {
             display: flex;
             justify-content: space-between;
             margin-bottom: 16px;
+        }
+        .link-iHost-input {
+            margin-bottom: 4px !important;
         }
         .input-group-text {
             display: flex;

@@ -1,6 +1,6 @@
 <template>
     <div class="invalid-token">
-        <img class="invalid-icon" src="" alt="" />
+        <img class="invalid-icon" src="../assets/image/warning-icon.png" alt="" />
         <span class="invalid-txt">{{ t('SETTINGS.INVALID_TOKEN') }}</span>
     </div>
 </template>

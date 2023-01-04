@@ -8,3 +8,10 @@
     background-color: #a0a6ab !important;
     border-color: #a0a6ab !important;
 }
+
+.form-check-input {
+    border-radius: 50% !important;
+}
+.form-check-input:focus {
+    box-shadow: none !important;
+}

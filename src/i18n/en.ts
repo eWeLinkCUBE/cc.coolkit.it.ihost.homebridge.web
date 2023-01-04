@@ -11,6 +11,9 @@ export default {
         ALREADY_GET_TOKEN: '*******',
         QUERY_IHOST: '************',
         ADD_IHOST_PLACEHOLDER: '******************',
+        INPUT_NULL: '* *****',
+        NOT_MATCH_IPV4: '* ******',
+        LINK_FAILED: '* *******',
         LOG_FEAT: '************',
         LOG_DESC: '******************'
     },

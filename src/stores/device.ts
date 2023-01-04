@@ -85,6 +85,7 @@ export const useDeviceStore = defineStore({
     id: 'device',
     state(): deviceStoreState {
         return {
+            // deviceList: deviceList.map((item) => ({ ...item, checked: true }))
             deviceList: []
         };
     },

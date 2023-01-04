@@ -24,6 +24,6 @@ export const getDevicesByAT = async () => {
     } else if (error === 401) {
         console.log('token过期', { error });
     } else if (error === 1000) {
-        window.homebridge.toast.error('网段错误')
+        window.homebridge.toast.error('网段错误');
     }
 };
