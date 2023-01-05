@@ -3,11 +3,26 @@ import i18n from '@/i18n';
 
 const { t } = i18n.global;
 
+const categoriyArray = [
+    'button',
+    'plug',
+    'switch',
+    'light',
+    'smokeDetector',
+    'contactSensor',
+    'motionSensor',
+    'temperatureSensor',
+    'humiditySensor',
+    'temperatureAndHumiditySensor',
+    'waterLeakDetector',
+    'curtain'
+];
 export const categoryMap = new Map([
     [t('DEVICES.SWITCH'), ['button', 'plug', 'switch']],
     [t('DEVICES.LIGHT'), ['light']],
     [t('DEVICES.SENSOR'), ['smokeDetector', 'contactSensor', 'motionSensor', 'temperatureSensor', 'humiditySensor', 'temperatureAndHumiditySensor', 'waterLeakDetector']],
-    [t('DEVICES.CURTAIN'), ['curtain']]
+    [t('DEVICES.CURTAIN'), ['curtain']],
+    [t('DEVICES.OTHER_DEVICES'), []]
 ]);
 
 export interface deviceListItem {
@@ -21,8 +36,11 @@ interface deviceStoreState {
 }
 interface categoryDeviceListItem {
     categoryName: string;
+    // 全选
     checked: boolean;
     device: deviceListItem[];
+    // 是否支持
+    support: boolean;
 }
 const deviceList = [
     {
@@ -102,12 +120,18 @@ export const useDeviceStore = defineStore({
             const res: categoryDeviceListItem[] = [];
             for (let categoryName of categoryMap.keys()) {
                 const categories = categoryMap.get(categoryName);
-                const device = this.deviceList.filter((item) => categories?.includes(item.display_category));
+                const device = this.deviceList.filter((item) => {
+                    if (categoryName === t('DEVICES.OTHER_DEVICES')) {
+                        return !categoriyArray.includes(item.display_category);
+                    }
+                    return categories?.includes(item.display_category);
+                });
                 if (device.length === 0) continue;
                 res.push({
                     categoryName,
                     device,
-                    checked: device.every((v) => v.checked === true)
+                    checked: device.every((v) => v.checked === true),
+                    support: categoryName !== t('DEVICES.OTHER_DEVICES')
                 });
             }
             return res;

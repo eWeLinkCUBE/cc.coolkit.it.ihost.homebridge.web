@@ -1,6 +1,6 @@
 <template>
     <div class="header-tab">
-        <button :class="['settings', 'btn', active === 0 ? 'btn-primary' : 'btn-secondary']" @click="toggleTab(0)">SETTINGS</button>
+        <button :class="['settings', 'btn', active === 0 ? 'btn-primary' : 'btn-secondary']" @click="toggleTab(0)">Setting</button>
         <button :class="['devicesList', 'btn', active === 1 ? 'btn-primary' : 'btn-secondary']" @click="toggleTab(1)">Devices List</button>
     </div>
     <div class="content card">

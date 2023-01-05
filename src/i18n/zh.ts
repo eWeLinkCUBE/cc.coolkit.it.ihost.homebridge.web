@@ -11,9 +11,10 @@ export default {
         ALREADY_GET_TOKEN: '已获取 token',
         QUERY_IHOST: 'IP查找iHost',
         ADD_IHOST_PLACEHOLDER: '请输入要添加的iHost的IP',
-        INPUT_NULL: '* ip不能为空',
-        NOT_MATCH_IPV4: '* 不符合ipv4',
-        LINK_FAILED: '* IP 连接失败',
+        INPUT_NULL: '*IP 不能为空',
+        NOT_MATCH_IPV4: '*不符合ipv4',
+        LINK_FAILED: '*IP 连接失败',
+        EXISTED_IP: '*IP 已存在',
         LOG_FEAT: '日志中显示设备事件',
         LOG_DESC: '选中后将会在日志中记录设备事件更改'
     },
@@ -24,6 +25,8 @@ export default {
         SWITCH: '开关插座',
         LIGHT: '灯',
         SENSOR: '传感器',
-        CURTAIN: '窗帘'
+        CURTAIN: '窗帘',
+        OTHER_DEVICES: '其他设备',
+        TEMP_NOT_SUPPORT: '暂不支持'
     }
 }

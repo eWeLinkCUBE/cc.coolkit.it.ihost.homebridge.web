@@ -14,6 +14,7 @@ export default {
         INPUT_NULL: '* *****',
         NOT_MATCH_IPV4: '* ******',
         LINK_FAILED: '* *******',
+        EXISTED_IP: '*****',
         LOG_FEAT: '************',
         LOG_DESC: '******************'
     },
@@ -24,6 +25,8 @@ export default {
         SWITCH: 'switch',
         LIGHT: 'light',
         SENSOR: 'sensor',
-        CURTAIN: 'curtain'
+        CURTAIN: 'curtain',
+        OTHER_DEVICES: '*******',
+        TEMP_NOT_SUPPORT: '***'
     }
 };

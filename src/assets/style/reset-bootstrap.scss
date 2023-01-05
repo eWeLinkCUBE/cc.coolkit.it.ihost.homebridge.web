@@ -2,6 +2,7 @@
     margin-left: 0;
     margin-right: 0;
     border: none;
+    text-transform: none;
 }
 
 .btn-secondary {
@@ -12,6 +13,7 @@
 .form-check-input {
     border-radius: 50% !important;
 }
-.form-check-input:focus {
+
+input:focus {
     box-shadow: none !important;
 }

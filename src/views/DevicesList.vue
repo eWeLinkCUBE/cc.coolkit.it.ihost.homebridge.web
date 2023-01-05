@@ -15,13 +15,20 @@
                 <p class="title">设备设置</p>
                 <p class="tip help-block">{{ t('DEVICES.TIP') }}</p>
                 <div class="device-list">
+                    <!-- 设备类别 -->
                     <div class="form-check" v-for="(item, index) in categoryDeviceList" :key="index">
-                        <!-- 设备类别 -->
+                        <!-- 折叠图标 -->
                         <a class="collapse-icon help-block" data-bs-toggle="collapse" :href="'#' + item.categoryName" @click="collapse(index)">
                             <img :src="imgArr[index]" alt="" />
                         </a>
-                        <input class="form-check-input" type="checkbox" @change="handleTotalChange(item.device, $event)" :checked="item.checked" :disabled="!!token && isExpire" />
-                        <label class="form-check-label categoryName">{{ item.categoryName }}</label>
+                        <input class="form-check-input" type="checkbox" @change="handleTotalChange(item.device, $event)" :checked="item.checked" :disabled="!!token && isExpire || !item.support" />
+                        <label class="form-check-label categoryName" :style="{ marginBottom: item.support ? '8px' : '20px' }">{{ item.categoryName }}</label>
+                        <!-- 暂不支持提示 -->
+                        <span v-if="!item.support" class="temp-not-support help-block">
+                            <!-- <img src="" alt=""> -->
+                            <span class="not-support-icon">i</span>
+                            {{ t('DEVICES.TEMP_NOT_SUPPORT') }}
+                        </span>
                         <!-- 类别下的具体设备 -->
                         <div class="collapse show" :id="item.categoryName" v-for="item1 in item.device" :key="item1.serial_number">
                             <input
@@ -29,7 +36,7 @@
                                 type="checkbox"
                                 :checked="item1.checked"
                                 @change="handleSingleChange(item1.serial_number, $event)"
-                                :disabled="!!token && isExpire"
+                                :disabled="!!token && isExpire || !item.support"
                             />
                             <label class="form-check-label">{{ item1.name }}</label>
                             <p class="deviceid help-block">ID: {{ item1.serial_number }}</p>
@@ -110,8 +117,31 @@ const handleSingleChange = (v: string, e: any) => {
     }
     .categoryName {
         margin-top: -4px;
-        margin-bottom: 8px;
         font-size: 18px;
+    }
+    .temp-not-support {
+        position: absolute;
+        left: 17px;
+        top: 20px;
+        display: flex;
+        align-items: center;
+        font-size: 10px;
+        // img {
+        //     width: 10px;
+        //     height: 10px;
+        //     margin-right: 2px;
+        //     background-color: #FFC300;
+        // }
+        .not-support-icon {
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+            color: #FFC300;
+            border: 1px solid #FFC300;
+            border-radius: 50%;
+            text-align: center;
+            transform: scale(0.6);
+        }
     }
     .collapse {
         margin-bottom: 8px;
