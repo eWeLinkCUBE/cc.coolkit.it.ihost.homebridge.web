@@ -46,7 +46,7 @@ import { ref } from '@vue/reactivity';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { useIHostStore } from '@/stores/iHost';
-import { useDeviceStore, type deviceListItem } from '@/stores/device';
+import { useDeviceStore, type deviceListItem, categoryMap } from '@/stores/device';
 import { updatePluginConfig } from '@/utils/config';
 import InvalidToken from '@/components/InvalidToken.vue';
 import expendSrc from '@/assets/image/expend.png';
@@ -58,7 +58,7 @@ const { token, isExpire } = storeToRefs(useIHostStore());
 const deviceStore = useDeviceStore();
 const { deviceList, categoryDeviceList } = storeToRefs(deviceStore);
 // 折叠图标
-const imgArr = ref(categoryDeviceList.value.map(() => expendSrc));
+const imgArr = ref(new Array(categoryMap.size).fill(expendSrc));
 const collapse = (index: number) => {
     imgArr.value[index] = imgArr.value[index] === expendSrc ? collapseSrc : expendSrc;
 };

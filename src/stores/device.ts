@@ -3,7 +3,7 @@ import i18n from '@/i18n';
 
 const { t } = i18n.global;
 
-const categoryMap = new Map([
+export const categoryMap = new Map([
     [t('DEVICES.SWITCH'), ['button', 'plug', 'switch']],
     [t('DEVICES.LIGHT'), ['light']],
     [t('DEVICES.SENSOR'), ['smokeDetector', 'contactSensor', 'motionSensor', 'temperatureSensor', 'humiditySensor', 'temperatureAndHumiditySensor', 'waterLeakDetector']],
