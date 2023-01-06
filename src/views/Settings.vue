@@ -86,7 +86,7 @@ const { iHostList, token, isExpire, getTokenTime, getTokenMac, successGetTokenMa
 const { deviceList } = storeToRefs(deviceStore);
 // 进入配置页时更新信息
 const initConfigInfo = async () => {
-    const { platform = '', ip = '', mac = '', ihostName = '', at = '', enableDeviceLog: log = false, devices = [] } = await getPluginConfig();
+    const { platform = '', ip = '', mac = '', ihostName = '', at = '', enableDeviceLog: log = true, devices = [] } = await getPluginConfig();
     // 更新pinia的值
     if (ihostName && ip && mac) {
         iHostStore.updateIHostList(ihostName, ip, mac);
@@ -195,7 +195,7 @@ const getAccessToken = async (mac: string) => {
         count.value = INTERVAL;
         actualInterval.value = INTERVAL;
         await getDevicesByAT();
-        await updatePluginConfig();
+        // await updatePluginConfig();
     }
 };
 onMounted(async () => {

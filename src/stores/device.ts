@@ -3,7 +3,8 @@ import i18n from '@/i18n';
 
 const { t } = i18n.global;
 
-const categoriyArray = [
+// 所有支持的设备类型
+export const categoriyArray = [
     'button',
     'plug',
     'switch',
@@ -17,6 +18,7 @@ const categoriyArray = [
     'waterLeakDetector',
     'curtain'
 ];
+// 设备类型分类
 export const categoryMap = new Map([
     [t('DEVICES.SWITCH'), ['button', 'plug', 'switch']],
     [t('DEVICES.LIGHT'), ['light']],

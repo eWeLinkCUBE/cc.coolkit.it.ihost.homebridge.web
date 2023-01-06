@@ -25,11 +25,11 @@ export const useIHostStore = defineStore({
         return {
             iHostList: [],
             token: '',
-            isExpire: true, // token是否失效
+            isExpire: false, // token是否失效
             getTokenTime: 0, // 点击获取token按钮的时间
             getTokenMac: '', // 点击了获取token按钮的iHost设备mac
             successGetTokenMac: '', // 成功获取到token的iHost设备MAC
-            enableDeviceLog: false // 是否在日志中显示设备事件
+            enableDeviceLog: true // 是否在日志中显示设备事件
         };
     },
     actions: {
