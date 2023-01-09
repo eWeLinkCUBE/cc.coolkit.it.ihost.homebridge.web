@@ -19,7 +19,7 @@ export const getDevicesByAT = async () => {
         const formatDeviceList = data.device_list.map((item: any) => {
             const { name, serial_number, display_category } = item;
             const defaultChecked = categoriyArray.includes(display_category);
-            const checked = config?.devices?.find((v) => v.serial_number === serial_number)?.checked ?? defaultChecked;
+            const checked = config?.ihost?.devices?.find((v) => v.serial_number === serial_number)?.checked ?? defaultChecked;
             return { name, serial_number, display_category, checked };
         });
         deviceList.value = formatDeviceList;

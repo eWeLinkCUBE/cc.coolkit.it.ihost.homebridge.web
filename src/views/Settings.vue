@@ -86,7 +86,9 @@ const { iHostList, token, isExpire, getTokenTime, getTokenMac, successGetTokenMa
 const { deviceList } = storeToRefs(deviceStore);
 // 进入配置页时更新信息
 const initConfigInfo = async () => {
-    const { platform = '', ip = '', mac = '', ihostName = '', at = '', enableDeviceLog: log = true, devices = [] } = await getPluginConfig();
+    // const { platform = '', ip = '', mac = '', ihostName = '', at = '', enableDeviceLog: log = true, devices = [] } = await getPluginConfig();
+    const { platform = '', ihost = {}, enableDeviceLog: log = true } = await getPluginConfig();
+    const { ip = '', mac = '', ihostName = '', at = '', devices = [] } = ihost;
     // 更新pinia的值
     if (ihostName && ip && mac) {
         iHostStore.updateIHostList(ihostName, ip, mac);
@@ -224,7 +226,7 @@ const closeAddIHostModal = () => {
 // 根据ip查找iHost
 const inputIP = ref('');
 const loadingLink = ref(false);
-const validIP = computed(() => inputIP.value && ipv4.test(inputIP.value) && !iHostList.value.some(v => v.ip === inputIP.value));
+const validIP = computed(() => inputIP.value && ipv4.test(inputIP.value) && !iHostList.value.some((v) => v.ip === inputIP.value));
 // 展示ip不规范错误
 const showIrregularFormatTip = ref(false);
 // 展示ip连接ihost失败错误
@@ -235,8 +237,8 @@ const linkIHostErrorTip = computed(() => {
         return t('SETTINGS.INPUT_NULL');
     } else if (!ipv4.test(inputIP.value)) {
         return t('SETTINGS.NOT_MATCH_IPV4');
-    } else if (iHostList.value.some(v => v.ip === inputIP.value)) {
-        return t('SETTINGS.EXISTED_IP')
+    } else if (iHostList.value.some((v) => v.ip === inputIP.value)) {
+        return t('SETTINGS.EXISTED_IP');
     }
 });
 const handleLinkIHostInput = () => {
