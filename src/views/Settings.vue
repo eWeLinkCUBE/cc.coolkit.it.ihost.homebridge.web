@@ -3,7 +3,7 @@
         <span class="label">token*</span>
         <p class="help-block">{{ t('SETTINGS.GET_TOKEN_TIP') }}</p>
         <div class="img-wrapper">
-            <img src="" alt="" />
+            <img src="../assets/image/get-token-tip.gif" alt="" />
         </div>
         <p class="help-block">{{ t('SETTINGS.STEP_1') }}</p>
         <p class="help-block">{{ t('SETTINGS.STEP_2') }}</p>
@@ -32,8 +32,8 @@
                     </button>
                 </div>
             </div>
-            <div class="card">
-                <div :class="['card-body', 'searchIHost', unableClickGetToken ? 'not-allowed' : 'pointer']" @click="handleClickQueryIHostCard">
+            <div :class="['card', unableClickGetToken ? 'not-allowed grey-card' : 'pointer']">
+                <div class="card-body searchIHost" @click="handleClickQueryIHostCard">
                     <img src="../assets/image/search.png" alt="" class="search-icon" />
                     <span class="search-txt">{{ t('SETTINGS.QUERY_IHOST') }}</span>
                 </div>
@@ -197,7 +197,6 @@ const getAccessToken = async (mac: string) => {
         count.value = INTERVAL;
         actualInterval.value = INTERVAL;
         await getDevicesByAT();
-        // await updatePluginConfig();
     }
 };
 onMounted(async () => {
@@ -250,15 +249,14 @@ const handleLink = async () => {
     if (unableClickGetToken.value || !validIP.value || loadingLink.value) return;
     loadingLink.value = true;
     await closeMdns();
-    // const res = await window.homebridge.request('/getDeviceByIp', inputIP.value);
-    // console.log('handleLink ==>', res)
     const { error, data } = await window.homebridge.request('/getDeviceByIp', inputIP.value);
     showIrregularFormatTip.value = false;
     if (error === 0) {
-        iHostStore.addIHost(data);
+        iHostStore.addIHost([{ ...data, name: 'ihost.local' }]);
         closeAddIHostModal();
     } else {
         showFailLinkIpTip.value = true;
+        queryMdns();
     }
     loadingLink.value = false;
 };
@@ -276,11 +274,11 @@ const handleChange = (e: any) => {
     }
     .img-wrapper {
         width: 100%;
-        height: 100px;
+        // height: 100px;
         padding: 6px;
         img {
             width: 100%;
-            height: 100%;
+            // height: 100%;
         }
     }
     .card-wrapper {
@@ -292,6 +290,7 @@ const handleChange = (e: any) => {
         .card {
             width: calc(50% - 5px);
             margin-bottom: 16px;
+            border: none !important;
             &-body {
                 padding: 10px;
             }
@@ -306,6 +305,12 @@ const handleChange = (e: any) => {
                     height: 18px;
                 }
             }
+        }
+        .grey-card {
+            filter: grayscale(100%);
+            background: #e8e8ec;
+            color: #9e9e9e;
+
         }
         .searchIHost {
             display: flex;

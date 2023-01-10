@@ -4,20 +4,20 @@ import i18n from '@/i18n';
 const { t } = i18n.global;
 
 // 所有支持的设备类型
-export const categoriyArray = [
-    'button',
-    'plug',
-    'switch',
-    'light',
-    'smokeDetector',
-    'contactSensor',
-    'motionSensor',
-    'temperatureSensor',
-    'humiditySensor',
-    'temperatureAndHumiditySensor',
-    'waterLeakDetector',
-    'curtain'
-];
+export const deviceCategoryMap = new Map<string, string>([
+    ['button', t('CATEGORY.BUTTON')],
+    ['plug', t('CATEGORY.PLUG')],
+    ['switch', t('CATEGORY.SWITCH')],
+    ['light', t('CATEGORY.LIGHT')],
+    ['smokeDetector', t('CATEGORY.SMOKE_DETECT')],
+    ['contactSensor', t('CATEGORY.DOOR_DETECT')],
+    ['motionSensor', t('CATEGORY.PIR_DETECT')],
+    ['temperatureSensor', t('CATEGORY.TEMP')],
+    ['humiditySensor', t('CATEGORY.HUM')],
+    ['temperatureAndHumiditySensor', t('CATEGORY.TEMP_HUM')],
+    ['waterLeakDetector', t('CATEGORY.WATER_DETECT')],
+    ['curtain', t('CATEGORY.CURTAIN')]
+]);
 // 设备类型分类
 export const categoryMap = new Map([
     [t('DEVICES.SWITCH'), ['button', 'plug', 'switch']],
@@ -124,7 +124,7 @@ export const useDeviceStore = defineStore({
                 const categories = categoryMap.get(categoryName);
                 const device = this.deviceList.filter((item) => {
                     if (categoryName === t('DEVICES.OTHER_DEVICES')) {
-                        return !categoriyArray.includes(item.display_category);
+                        return !deviceCategoryMap.has(item.display_category);
                     }
                     return categories?.includes(item.display_category);
                 });

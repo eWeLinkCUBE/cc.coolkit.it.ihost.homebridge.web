@@ -12,7 +12,7 @@
             </div>
             <!-- 有token有设备时展示 -->
             <div class="device-wrapper" v-if="deviceList.length">
-                <p class="title">设备设置</p>
+                <p class="title">{{ t('DEVICES.CONFIG') }}</p>
                 <p class="tip help-block">{{ t('DEVICES.TIP') }}</p>
                 <div class="device-list">
                     <!-- 设备类别 -->
