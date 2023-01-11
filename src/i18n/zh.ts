@@ -12,7 +12,7 @@ export default {
         QUERY_IHOST: 'IP查找iHost',
         ADD_IHOST_PLACEHOLDER: '请输入要添加的iHost的IP',
         INPUT_NULL: '*IP不能为空',
-        NOT_MATCH_IPV4: '*不符合ipv4格式',
+        NOT_MATCH_IPV4: '*不符合ip格式',
         LINK_FAILED: '*IP连接失败',
         EXISTED_IP: '*IP已存在',
         LOG_FEAT: '日志中显示设备事件',

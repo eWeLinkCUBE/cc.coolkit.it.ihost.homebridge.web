@@ -54,7 +54,7 @@ import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { useIHostStore } from '@/stores/iHost';
 import { useDeviceStore, type deviceListItem, categoryMap } from '@/stores/device';
-import { updatePluginConfig } from '@/utils/config';
+import { updatePluginConfig } from '@/utils';
 import InvalidToken from '@/components/InvalidToken.vue';
 import expendSrc from '@/assets/image/expend.png';
 import collapseSrc from '@/assets/image/collapse.png';

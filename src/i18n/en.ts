@@ -12,7 +12,7 @@ export default {
         QUERY_IHOST: 'Search iHost',
         ADD_IHOST_PLACEHOLDER: 'Enter an IP address',
         INPUT_NULL: '*Input can not be empty.',
-        NOT_MATCH_IPV4: "*Don't conform to ipv4 format.",
+        NOT_MATCH_IPV4: "*Don't conform to ip format.",
         LINK_FAILED: '*Failed to connect.',
         EXISTED_IP: '*IP already exists.',
         LOG_FEAT: 'Show device events in logs',

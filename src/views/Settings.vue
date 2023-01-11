@@ -3,7 +3,7 @@
         <span class="label">token*</span>
         <p class="help-block">{{ t('SETTINGS.GET_TOKEN_TIP') }}</p>
         <div class="img-wrapper">
-            <img src="../assets/image/get-token-tip.gif" alt="" />
+            <img :src="getTokenTip" alt="" />
         </div>
         <p class="help-block">{{ t('SETTINGS.STEP_1') }}</p>
         <p class="help-block">{{ t('SETTINGS.STEP_2') }}</p>
@@ -70,14 +70,13 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from '@vue/runtime-core';
 import { useI18n } from 'vue-i18n';
-import { useIHostStore, INTERVAL } from '@/stores/iHost';
 import { storeToRefs } from 'pinia';
-import { getPluginConfig, updatePluginConfig } from '@/utils/config';
-import { formatSecondToMinute } from '@/utils/time';
-import { getDevicesByAT } from '@/utils/device';
-import { ipv4 } from '@/utils/regExp';
-import InvalidToken from '@/components/InvalidToken.vue';
+import { useIHostStore, INTERVAL } from '@/stores/iHost';
 import { useDeviceStore } from '@/stores/device';
+import { getPluginConfig, updatePluginConfig, getDevicesByAT, formatSecondToMinute, ipv4 } from '@/utils';
+import InvalidToken from '@/components/InvalidToken.vue';
+import getTokenTipZh from '@/assets/image/get-token-tip-zh.gif';
+import getTokenTipEn from '@/assets/image/get-token-tip-en.gif';
 
 const { t } = useI18n();
 const iHostStore = useIHostStore();
@@ -110,6 +109,8 @@ const initConfigInfo = async () => {
             iHostList.value = [{ name: ihostName, ip: ip, mac: mac }];
         }
     } else {
+        // 不处于倒计时中时清空ihost列表
+        !isInCountDown.value && (iHostList.value = []);
         // 无token时直接开启iHost查询
         queryMdns();
     }
@@ -125,6 +126,8 @@ const closeMdns = async () => {
     console.log('关闭mdns查询');
     await window.homebridge.request('/closeQuery');
 };
+// 获取token提示的中英文gif
+const getTokenTip = window.homebridge.serverEnv.env.lang === 'zh-CN' ? getTokenTipZh : getTokenTipEn;
 // 距上次获取token过去的时间
 const actualInterval = ref(Math.floor((Date.now() - getTokenTime.value) / 1000));
 // 是否处于倒计时中
@@ -310,7 +313,6 @@ const handleChange = (e: any) => {
             filter: grayscale(100%);
             background: #e8e8ec;
             color: #9e9e9e;
-
         }
         .searchIHost {
             display: flex;
