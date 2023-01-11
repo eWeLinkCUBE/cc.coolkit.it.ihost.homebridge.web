@@ -19,8 +19,8 @@
             <div class="card" v-for="(item, index) in iHostList" :key="index">
                 <div class="card-body">
                     <h5 class="card-title">{{ item.name }}</h5>
-                    <p class="card-text">IP: {{ item.ip }}</p>
-                    <p class="card-text">MAC: {{ item.mac }}</p>
+                    <p class="card-text ellipsis">IP: {{ item.ip }}</p>
+                    <p class="card-text ellipsis">MAC: {{ item.mac }}</p>
                     <button
                         :class="['btn', 'btn-sm', unableClickGetToken && !getTokenTxt[index].loading ? 'btn-secondary' : 'btn-primary']"
                         @click="handleGetToken(item.mac)"
@@ -292,6 +292,7 @@ const handleChange = (e: any) => {
         padding: 0 10px;
         .card {
             width: calc(50% - 5px);
+            height: 145px;
             margin-bottom: 16px;
             border: none !important;
             &-body {
