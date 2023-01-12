@@ -28,8 +28,8 @@ const iHostStore = useIHostStore();
 // 监听查询mdns结果
 window.homebridge.addEventListener('getMdnsDevices', (event: any) => {
     console.log('get iHost success ===>', event.data);
-    const data = event.data.map((v: any) => ({ ...v, mac: v.mac ?? '82:73:15:b9:d2:48' }));
-    iHostStore.addIHost(data);
+    // const data = event.data.map((v: any) => ({ ...v, mac: v.mac ?? '82:73:15:b9:d2:48' }));
+    iHostStore.addIHost(event.data);
 });
 </script>
 
