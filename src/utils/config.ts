@@ -28,8 +28,8 @@ export const updatePluginConfig = async () => {
     const listItem = iHostList.value.find((v) => v.mac === successGetTokenMac.value);
     const res = await window.homebridge.updatePluginConfig([
         {
-            name: 'homebridge-plugin-ihost',
-            platform: 'IhostPlatform',
+            name: 'homebridge-plugin-ewelink-cube',
+            platform: 'eWeLinkCUBEPlatform',
             ihost: {
                 ip: listItem?.ip ?? '',
                 mac: listItem?.mac ?? '',
