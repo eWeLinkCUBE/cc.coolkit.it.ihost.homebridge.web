@@ -12,9 +12,9 @@
             <li>{{ t('SETTINGS.TIP_1') }}</li>
             <li>{{ t('SETTINGS.TIP_2') }}</li>
         </ul>
-        <!-- 无效token提示 -->
+        <!-- Invalid token prompt -->
         <InvalidToken v-if="token && isExpire" />
-        <!-- iHost卡片区域 -->
+        <!-- iHost card area -->
         <div class="card-wrapper">
             <div class="card" v-for="(item, index) in iHostList" :key="index">
                 <div class="card-body">
@@ -39,7 +39,7 @@
                 </div>
             </div>
         </div>
-        <!-- 根据ip搜寻iHost -->
+        <!-- Search iHost by ip -->
         <div class="link-iHost" v-if="!unableClickGetToken && showAddIHostModal">
             <div class="title">
                 <span>iHost</span>
@@ -83,12 +83,11 @@ const iHostStore = useIHostStore();
 const deviceStore = useDeviceStore();
 const { iHostList, token, isExpire, getTokenTime, getTokenMac, successGetTokenMac, enableDeviceLog } = storeToRefs(iHostStore);
 const { deviceList } = storeToRefs(deviceStore);
-// 进入配置页时更新信息
+// Update information when entering the configuration page
 const initConfigInfo = async () => {
-    // const { platform = '', ip = '', mac = '', ihostName = '', at = '', enableDeviceLog: log = true, devices = [] } = await getPluginConfig();
     const { platform = '', ihost = {}, enableDeviceLog: log = true } = await getPluginConfig();
     const { ip = '', mac = '', ihostName = '', at = '', devices = [] } = ihost;
-    // 更新pinia的值
+    // Update the value of pinia
     if (ihostName && ip && mac) {
         iHostStore.updateIHostList(ihostName, ip, mac);
     }
@@ -96,51 +95,48 @@ const initConfigInfo = async () => {
     successGetTokenMac.value = mac;
     enableDeviceLog.value = log;
     deviceList.value = devices;
-    // 第一次进入配置页时更新name和platform
+    // Update name and platform when entering the configuration page for the first time
     !platform && (await updatePluginConfig());
     if (token.value) {
-        // 目的是为了检验token是否有效
+        // The purpose is to check whether the token is valid
         await getDevicesByAT();
-        // token失效时开启iHost查询，token有效时展示出对应的iHost
+        // Open the iHost query when the token is invalid, and display the corresponding iHost when the token is valid
         if (isExpire.value) {
-            // iHostList.value = [];
             queryMdns();
         } else {
             iHostList.value = [{ name: ihostName, ip: ip, mac: mac }];
         }
     } else {
-        // 不处于倒计时中时清空ihost列表
+        // Clear the ihost list when it is not counting down
         !isInCountDown.value && (iHostList.value = []);
-        // 无token时直接开启iHost查询
+        // Open iHost query directly when there is no token
         queryMdns();
     }
     window.homebridge.hideSpinner();
 };
-//	发起mdns查询
+//	Initiate mdns query
 const queryMdns = async () => {
-    console.log('发起mdns查询');
     await window.homebridge.request('/queryMdns');
 };
-// 关闭mdns查询
+// close mdns lookup
 const closeMdns = async () => {
-    console.log('关闭mdns查询');
     await window.homebridge.request('/closeQuery');
 };
-// 获取token提示的中英文gif
+// Get the Chinese and English gif of the token prompt
 const getTokenTip = window.homebridge.serverEnv.env.lang === 'zh-CN' ? getTokenTipZh : getTokenTipEn;
-// 距上次获取token过去的时间
+// The elapsed time since the last time the token was obtained
 const actualInterval = ref(Math.floor((Date.now() - getTokenTime.value) / 1000));
-// 是否处于倒计时中
+// Is it in the countdown
 const isInCountDown = computed(() => actualInterval.value < INTERVAL);
-// 判断token是否有效
+// Determine whether the token is valid
 const isTokenValid = computed(() => !!(token.value && !isExpire.value));
-// 是否禁用获取token按钮
+// Whether to disable the get token button
 const unableClickGetToken = computed(() => {
     const condition_1 = !!getTokenMac.value && iHostList.value.some((v) => v.mac === getTokenMac.value);
     const condition_2 = token.value ? isTokenValid.value || isInCountDown.value : isInCountDown.value;
     return condition_1 && condition_2;
 });
-// 获取token按钮文案
+// Get token button copy
 const getTokenTxt = computed(() => {
     return iHostList.value.map((v) => {
         const txtConfig = { loading: false, again: false, txt: t('SETTINGS.GET_TOKEN') };
@@ -158,13 +154,12 @@ const getTokenTxt = computed(() => {
         return txtConfig;
     });
 });
-// 倒计时
+// countdown
 const timer = ref<number>();
 const initCount = isInCountDown.value ? INTERVAL - actualInterval.value : INTERVAL;
 const count = ref(initCount);
 const countDownTxt = computed(() => formatSecondToMinute(count.value));
 const countDown = () => {
-    console.log('轮询开启');
     actualInterval.value = Math.floor((Date.now() - getTokenTime.value) / 1000);
     closeMdns();
     timer.value = setInterval(() => {
@@ -180,18 +175,17 @@ const countDown = () => {
         getAccessToken(getTokenMac.value);
     }, 1000);
 };
-// 点击获取token按钮
+// Click the get token button
 const handleGetToken = (mac: string) => {
     getTokenTime.value = Date.now();
     getTokenMac.value = mac;
     countDown();
 };
-//	获取access_token
+//	get access_token
 const getAccessToken = async (mac: string) => {
     const ip = iHostList.value.find((v) => v.mac === getTokenMac.value)?.ip ?? '';
     const { error, data } = await window.homebridge.request('/getAccessToken', ip);
     if (error === 0) {
-        console.log('token ===>', data.token);
         token.value = data.token;
         isExpire.value = false;
         successGetTokenMac.value = mac;
@@ -213,7 +207,7 @@ onMounted(async () => {
 onUnmounted(() => {
     clearInterval(timer.value);
 });
-// 是否展示根据ip搜索iHost的模态框
+// Whether to display the modal box for searching iHost based on ip
 const showAddIHostModal = ref(false);
 const handleClickQueryIHostCard = () => {
     if (unableClickGetToken.value) return;
@@ -225,15 +219,15 @@ const closeAddIHostModal = () => {
     showIrregularFormatTip.value = false;
     showFailLinkIpTip.value = false;
 };
-// 根据ip查找iHost
+// Find iHost based on ip
 const inputIP = ref('');
 const loadingLink = ref(false);
 const validIP = computed(() => inputIP.value && ipv4.test(inputIP.value) && !iHostList.value.some((v) => v.ip === inputIP.value));
-// 展示ip不规范错误
+// Show ip irregularity error
 const showIrregularFormatTip = ref(false);
-// 展示ip连接ihost失败错误
+// Display ip connection ihost failed error
 const showFailLinkIpTip = ref(false);
-// 错误提示
+// Error message
 const linkIHostErrorTip = computed(() => {
     if (!inputIP.value) {
         return t('SETTINGS.INPUT_NULL');
@@ -263,7 +257,7 @@ const handleLink = async () => {
     }
     loadingLink.value = false;
 };
-// 是否显示设备日志
+// Whether to display device logs
 const handleChange = (e: any) => {
     enableDeviceLog.value = e.target.checked;
     updatePluginConfig();
@@ -277,11 +271,9 @@ const handleChange = (e: any) => {
     }
     .img-wrapper {
         width: 100%;
-        // height: 100px;
         padding: 6px;
         img {
             width: 100%;
-            // height: 100%;
         }
     }
     .card-wrapper {

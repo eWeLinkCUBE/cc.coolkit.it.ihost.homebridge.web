@@ -1,4 +1,4 @@
-// 秒数格式化
+// format seconds
 export const formatSecondToMinute = (seconds: number) => {
     let m = Math.floor(seconds / 60);
     let s = seconds % 60;

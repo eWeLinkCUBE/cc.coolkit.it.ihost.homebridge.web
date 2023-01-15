@@ -1,35 +1,34 @@
 <template>
     <div class="devices-list-wrapper">
-        <!-- 无token时展示 -->
+        <!-- Show when there is no token -->
         <div class="unable-get-device title" v-if="!token">{{ t('DEVICES.UNABLE_GET_DEVICE') }}</div>
         <div v-else>
-            <!-- token失效 -->
+            <!-- token invalidation -->
             <InvalidToken v-if="isExpire" style="margin-bottom: 10px" />
-            <!-- 有token无设备时展示 -->
+            <!-- Displayed when there is token but no device -->
             <div class="no-device title" v-if="!isExpire && !deviceList.length">
                 <img src="../assets/image/no-device.png" alt="" />
                 <p>{{ t('DEVICES.NO_DEVICE') }}</p>
             </div>
-            <!-- 有token有设备时展示 -->
+            <!-- Displayed when there are tokens and devices -->
             <div class="device-wrapper" v-if="deviceList.length">
                 <p class="title">{{ t('DEVICES.CONFIG') }}</p>
                 <p class="tip help-block">{{ t('DEVICES.TIP') }}</p>
                 <div class="device-list">
-                    <!-- 设备类别 -->
+                    <!-- Device category -->
                     <div class="form-check" v-for="(item, index) in categoryDeviceList" :key="index">
-                        <!-- 折叠图标 -->
+                        <!-- fold icon -->
                         <a class="collapse-icon help-block" data-bs-toggle="collapse" :href="'#' + item.categoryName" @click="collapse(index)">
                             <img :src="imgArr[index]" alt="" />
                         </a>
                         <input class="form-check-input" type="checkbox" @change="handleTotalChange(item.device, $event)" :checked="item.checked" :disabled="!!token && isExpire || !item.support" />
                         <label class="form-check-label categoryName" :style="{ marginBottom: item.support ? '8px' : '20px' }">{{ item.categoryName }}</label>
-                        <!-- 暂不支持提示 -->
+                        <!-- Prompt not supported -->
                         <span v-if="!item.support" class="temp-not-support help-block">
-                            <!-- <img src="" alt=""> -->
                             <span class="not-support-icon">i</span>
                             {{ t('DEVICES.TEMP_NOT_SUPPORT') }}
                         </span>
-                        <!-- 类别下的具体设备 -->
+                        <!-- Specific device under the category -->
                         <div class="collapse show" :id="item.categoryName" v-for="item1 in item.device" :key="item1.serial_number">
                             <input
                                 class="form-check-input"
@@ -64,20 +63,20 @@ const { t } = useI18n();
 const { token, isExpire } = storeToRefs(useIHostStore());
 const deviceStore = useDeviceStore();
 const { deviceList, categoryDeviceList } = storeToRefs(deviceStore);
-// 折叠图标
+// fold icon
 const imgArr = ref(new Array(categoryMap.size).fill(expendSrc));
 const collapse = (index: number) => {
     imgArr.value[index] = imgArr.value[index] === expendSrc ? collapseSrc : expendSrc;
 };
-// 注意！！！
-// 任何有关于config的修改，都需要先调用updatePluginConfig方法，这样在点击保存时，才能正确将config写入磁盘
-// 勾选设备类别
+// Notice! ! !
+// Any modification related to config needs to call the updatePluginConfig method first, so that the config can be written to the disk correctly when you click save
+// Check the device category
 const handleTotalChange = (device: deviceListItem[], e: any) => {
     const checked = e.target.checked;
     device.forEach((item) => deviceStore.updateDevicesListChecked(item.serial_number, checked));
     updatePluginConfig();
 };
-// 勾选具体设备
+// Check the specific device
 const handleSingleChange = (v: string, e: any) => {
     const checked = e.target.checked;
     deviceStore.updateDevicesListChecked(v, checked);

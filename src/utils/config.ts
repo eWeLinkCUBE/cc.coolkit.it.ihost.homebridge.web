@@ -2,6 +2,7 @@ import { toRaw } from '@vue/runtime-core';
 import { storeToRefs } from 'pinia';
 import { useIHostStore } from '@/stores/iHost';
 import { useDeviceStore, type deviceListItem } from '@/stores/device';
+
 interface IConfig {
     name?: string;
     platform?: string;
@@ -15,13 +16,14 @@ interface IConfig {
     };
     enableDeviceLog?: boolean;
 }
-// 获取当前插件配置文件信息
+
+// Get the current plugin configuration file information
 export const getPluginConfig = async (): Promise<IConfig> => {
     const config = await window.homebridge.getPluginConfig();
-    console.log('getPluginConfig');
     return config[0] ?? {};
 };
-// 更新当前插件配置文件信息
+
+// Update the current plugin configuration file information
 export const updatePluginConfig = async () => {
     const { iHostList, token, successGetTokenMac, enableDeviceLog } = storeToRefs(useIHostStore());
     const { deviceList } = storeToRefs(useDeviceStore());
@@ -41,5 +43,4 @@ export const updatePluginConfig = async () => {
             enableDeviceLog: enableDeviceLog.value
         }
     ]);
-    console.log('updatePluginConfig ===>', res);
 };

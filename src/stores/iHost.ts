@@ -16,7 +16,7 @@ interface iHostStoreState {
     enableDeviceLog: boolean;
 }
 
-// 间隔时间（秒）
+// Interval time (seconds)
 export const INTERVAL = 5 * 60;
 
 export const useIHostStore = defineStore({
@@ -25,15 +25,15 @@ export const useIHostStore = defineStore({
         return {
             iHostList: [],
             token: '',
-            isExpire: false, // token是否失效
-            getTokenTime: 0, // 点击获取token按钮的时间
-            getTokenMac: '', // 点击了获取token按钮的iHost设备mac
-            successGetTokenMac: '', // 成功获取到token的iHost设备MAC
-            enableDeviceLog: true // 是否在日志中显示设备事件
+            isExpire: false, // Whether the token is invalid
+            getTokenTime: 0, // The time when the Get token button is clicked
+            getTokenMac: '', // The iHost device mac that clicked the get token button
+            successGetTokenMac: '', // Successfully obtained the iHost device mac of the token
+            enableDeviceLog: true // Whether to display device events in the log
         };
     },
     actions: {
-        // 添加iHost设备
+        // Add iHost device
         addIHost(iHost: iHostListItem[]) {
             iHost.forEach((iHostItem) => {
                 const { ip, mac } = iHostItem;
@@ -46,7 +46,7 @@ export const useIHostStore = defineStore({
                 }
             });
         },
-        // 更新iHost列表数据
+        // Update iHost listing data
         updateIHostList(name: string, ip: string, mac: string) {
             const index = this.iHostList.findIndex((item) => item.mac === mac);
             if (index !== -1) {
