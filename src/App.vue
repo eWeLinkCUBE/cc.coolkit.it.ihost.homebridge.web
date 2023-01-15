@@ -16,7 +16,7 @@ import { useIHostStore } from './stores/iHost';
 import Settings from './views/Settings.vue';
 import DevicesList from './views/DevicesList.vue';
 
-// 切换顶部tab
+// switch top tab
 const active = ref(0);
 const toggleTab = (num: number) => {
     active.value = num;
@@ -25,10 +25,8 @@ const toggleTab = (num: number) => {
 window.homebridge.showSpinner();
 
 const iHostStore = useIHostStore();
-// 监听查询mdns结果
+// Listen to query mdns results
 window.homebridge.addEventListener('getMdnsDevices', (event: any) => {
-    console.log('get iHost success ===>', event.data);
-    // const data = event.data.map((v: any) => ({ ...v, mac: v.mac ?? '82:73:15:b9:d2:48' }));
     iHostStore.addIHost(event.data);
 });
 </script>
