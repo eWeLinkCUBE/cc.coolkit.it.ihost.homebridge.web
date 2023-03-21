@@ -17,6 +17,7 @@ const { t } = useI18n();
     align-items: center;
     height: 40px;
     padding: 10px;
+    margin-top: 20px;
     background-color: #f2f2f2;
     color: #c22c2c;
     border-radius: 8px;

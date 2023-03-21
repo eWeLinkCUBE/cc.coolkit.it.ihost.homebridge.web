@@ -3,7 +3,7 @@
         <span class="label">token*</span>
         <p class="help-block">{{ t('SETTINGS.GET_TOKEN_TIP') }}</p>
         <!-- token tutorial -->
-        <TokenTutorial/>
+        <TokenTutorial />
         <!-- Invalid token prompt -->
         <InvalidToken v-if="token && isExpire" />
         <!-- iHost card area -->
@@ -11,7 +11,7 @@
             <div class="card" v-for="(item, index) in iHostList" :key="index">
                 <div class="card-body">
                     <h5 class="card-title">{{ item.name }}</h5>
-                    <p class="card-text ellipsis">IP: {{ item.ip }}</p>
+                    <p class="card-text ellipsis">IP: {{ item.name.includes('NSPanelPro') ? item.ip.replace(':8081', '') : item.ip }}</p>
                     <p class="card-text ellipsis">MAC: {{ item.mac }}</p>
                     <button
                         :class="['btn', 'btn-sm', unableClickGetToken && !getTokenTxt[index].loading ? 'btn-secondary' : 'btn-primary']"
