@@ -1,10 +1,14 @@
 export default {
     SETTINGS: {
-        GET_TOKEN_TIP: '使用Plugin name必须获取token，获取方式如下',
+        GET_TOKEN_TIP: '使用eWeLink CUBE必须获取token，获取方式如下',
         STEP_1: 'Step 1: 点击“获取token”按钮',
         STEP_2: 'Step 2: 前往iHost中控台“获取凭证弹窗”的“确认”按钮',
         TIP_1: '当Homebridge未运行在iHost上时，可点击“IP查找iHost”按钮，输入IP来连接你去要获取token的iHost',
         TIP_2: '如果更换了iHost，需重新获取token，同时会清除已添加到Homebridge里的配件',
+        STEP_1_NS_PANEL: 'Step 1: 点击“获取token”按钮（缺）',
+        STEP_2_NS_PANEL: 'Step 2: 前往屏端“设置” > “关于本机”长按页面“设备名称”7秒（缺）',
+        STEP_3_NS_PANEL: 'Step 3: 返回该页面（缺）',
+        TIP_1_NS_PANEL: "若通过IP连接，当IP发生改变后需要通过“查找”按钮输入更换后的IP，连接成功后恢复使用（缺）",
         INVALID_TOKEN: 'token已失效，请重新获取token',
         GET_TOKEN: '获取 token',
         RE_GET_TOKEN: '重新获取',

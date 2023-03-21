@@ -2,16 +2,8 @@
     <div class="settings">
         <span class="label">token*</span>
         <p class="help-block">{{ t('SETTINGS.GET_TOKEN_TIP') }}</p>
-        <div class="img-wrapper">
-            <img :src="getTokenTip" alt="" />
-        </div>
-        <p class="help-block">{{ t('SETTINGS.STEP_1') }}</p>
-        <p class="help-block">{{ t('SETTINGS.STEP_2') }}</p>
-        <p class="help-block">tips</p>
-        <ul class="help-block">
-            <li>{{ t('SETTINGS.TIP_1') }}</li>
-            <li>{{ t('SETTINGS.TIP_2') }}</li>
-        </ul>
+        <!-- token tutorial -->
+        <TokenTutorial/>
         <!-- Invalid token prompt -->
         <InvalidToken v-if="token && isExpire" />
         <!-- iHost card area -->
@@ -75,8 +67,7 @@ import { useIHostStore, INTERVAL } from '@/stores/iHost';
 import { useDeviceStore } from '@/stores/device';
 import { getPluginConfig, updatePluginConfig, getDevicesByAT, formatSecondToMinute, ipv4 } from '@/utils';
 import InvalidToken from '@/components/InvalidToken.vue';
-import getTokenTipZh from '@/assets/image/get-token-tip-zh.gif';
-import getTokenTipEn from '@/assets/image/get-token-tip-en.gif';
+import TokenTutorial from '@/components/TokenTutorial.vue';
 
 const { t } = useI18n();
 const iHostStore = useIHostStore();
@@ -122,8 +113,6 @@ const queryMdns = async () => {
 const closeMdns = async () => {
     await window.homebridge.request('/closeQuery');
 };
-// Get the Chinese and English gif of the token prompt
-const getTokenTip = window.homebridge.serverEnv.env.lang === 'zh-CN' ? getTokenTipZh : getTokenTipEn;
 // The elapsed time since the last time the token was obtained
 const actualInterval = ref(Math.floor((Date.now() - getTokenTime.value) / 1000));
 // Is it in the countdown
@@ -269,13 +258,7 @@ const handleChange = (e: any) => {
     .label {
         font-weight: 600;
     }
-    .img-wrapper {
-        width: 100%;
-        padding: 6px;
-        img {
-            width: 100%;
-        }
-    }
+
     .card-wrapper {
         display: flex;
         flex-wrap: wrap;

@@ -1,10 +1,14 @@
 export default {
     SETTINGS: {
-        GET_TOKEN_TIP: 'Please follow steps below to get iHost access token:',
+        GET_TOKEN_TIP: 'Please follow steps below to get access token:',
         STEP_1: 'Step 1: Click "Get iHost access token".',
         STEP_2: 'Step 2: Confirm "Get iHost access token" on iHost dashboard page.',
         TIP_1: "Click 'Search iHost' and enter an IP address to get iHost access token if you don't find the iHost you want above.",
         TIP_2: 'Please reacquire access token if you replace iHost, and all devices in Homebridge will be deleted simultaneously.',
+        STEP_1_NS_PANEL: 'Step 1: 点击“获取token”按钮（缺）',
+        STEP_2_NS_PANEL: 'Step 2: 前往屏端“设置” > “关于本机”长按页面“设备名称”7秒（缺）',
+        STEP_3_NS_PANEL: 'Step 3: 返回该页面（缺）',
+        TIP_1_NS_PANEL: "若通过IP连接，当IP发生改变后需要通过“查找”按钮输入更换后的IP，连接成功后恢复使用（缺）",
         INVALID_TOKEN: 'Expired. Click to reacquire a valid access token.',
         GET_TOKEN: 'Get access token',
         RE_GET_TOKEN: 'Reacquire',
