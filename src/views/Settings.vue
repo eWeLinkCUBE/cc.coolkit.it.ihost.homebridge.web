@@ -327,6 +327,7 @@ const handleChange = (e: any) => {
         display: block;
         margin-top: -8px;
         font-size: 12px;
+        line-height: 33px;
     }
 }
 </style>

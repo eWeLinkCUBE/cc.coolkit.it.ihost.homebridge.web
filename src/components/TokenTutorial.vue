@@ -1,19 +1,6 @@
 <template>
-    <div id="tutorial-carousel" class="carousel slide">
-        <!-- <div id="tutorial-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel"> -->
+    <div id="tutorial-carousel" class="carousel slide" data-ride="carousel">
         <div class="carousel-inner">
-            <div class="carousel-item">
-                <div class="img-wrapper">
-                    <img :src="getNsPanelProTokenTip" alt="" />
-                </div>
-                <p class="help-block-title">{{ t('SETTINGS.STEP_1_NS_PANEL') }}</p>
-                <p class="help-block-title">{{ t('SETTINGS.STEP_2_NS_PANEL') }}</p>
-                <p class="help-block-title">{{ t('SETTINGS.STEP_3_NS_PANEL') }}</p>
-                <p class="help-block-title tips">Tips:</p>
-                <ul class="help-block">
-                    <li>{{ t('SETTINGS.TIP_1_NS_PANEL') }}</li>
-                </ul>
-            </div>
             <div class="carousel-item active">
                 <div class="img-wrapper">
                     <img :src="getIHostTokenTip" alt="" />
@@ -39,13 +26,13 @@
                 </ul>
             </div>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#tutorial-carousel" data-bs-slide="prev">
+        <button class="carousel-control-prev" type="button" data-target="#tutorial-carousel" data-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
+            <span class="sr-only">Previous</span>
         </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#tutorial-carousel" data-bs-slide="next">
+        <button class="carousel-control-next" type="button" data-target="#tutorial-carousel" data-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
+            <span class="sr-only">Next</span>
         </button>
     </div>
 </template>
@@ -68,9 +55,17 @@ const getNsPanelProTokenTip = window.homebridge.serverEnv.env.lang === 'zh-CN' ?
 #tutorial-carousel {
     height: 565px;
 
+    .carousel-control-next,
+    .carousel-control-prev {
+        bottom: 25%;
+    }
+
     .carousel-item {
         padding: 6px;
-        // float: none;
+
+        ul {
+            list-style: inside;
+        }
 
         .help-block-title {
             font-size: 16px;
@@ -80,7 +75,7 @@ const getNsPanelProTokenTip = window.homebridge.serverEnv.env.lang === 'zh-CN' ?
         }
 
         .tips {
-            padding-top: 5px;
+            padding-top: 10px;
         }
 
         .help-block {
