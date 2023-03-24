@@ -9,10 +9,17 @@ export interface iHostListItem {
 interface iHostStoreState {
     iHostList: iHostListItem[];
     token: string;
+    /** Whether the token is invalid */
     isExpire: boolean;
+    /** Whether the ip is invalid */
+    isIPInvalid: boolean;
+    /** The time when the Get token button is clicked */
     getTokenTime: number;
+    /** The iHost device mac that clicked the get token button */
     getTokenMac: string;
+    /** Successfully obtained the iHost device mac of the token */
     successGetTokenMac: string;
+    /** Whether to display device events in the log */
     enableDeviceLog: boolean;
 }
 
@@ -25,11 +32,12 @@ export const useIHostStore = defineStore({
         return {
             iHostList: [],
             token: '',
-            isExpire: false, // Whether the token is invalid
-            getTokenTime: 0, // The time when the Get token button is clicked
-            getTokenMac: '', // The iHost device mac that clicked the get token button
-            successGetTokenMac: '', // Successfully obtained the iHost device mac of the token
-            enableDeviceLog: true // Whether to display device events in the log
+            isExpire: false, 
+            isIPInvalid: false, 
+            getTokenTime: 0, 
+            getTokenMac: '', 
+            successGetTokenMac: '', 
+            enableDeviceLog: true 
         };
     },
     actions: {

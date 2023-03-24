@@ -4,9 +4,9 @@
         <div class="unable-get-device title" v-if="!token">{{ t('DEVICES.UNABLE_GET_DEVICE') }}</div>
         <div v-else>
             <!-- token invalidation -->
-            <InvalidToken v-if="isExpire" style="margin-bottom: 10px" />
+            <InvalidToken v-if="isExpire || isIPInvalid" style="margin-bottom: 10px" />
             <!-- Displayed when there is token but no device -->
-            <div class="no-device title" v-if="!isExpire && !deviceList.length">
+            <div class="no-device title" v-if="(!isExpire || !isIPInvalid) && !deviceList.length">
                 <img src="../assets/image/no-device.png" alt="" />
                 <p>{{ t('DEVICES.NO_DEVICE') }}</p>
             </div>
@@ -21,7 +21,13 @@
                         <a class="collapse-icon help-block" data-bs-toggle="collapse" :href="'#' + item.categoryName" @click="collapse(index)">
                             <img :src="imgArr[index]" alt="" />
                         </a>
-                        <input class="form-check-input" type="checkbox" @change="handleTotalChange(item.device, $event)" :checked="item.checked" :disabled="!!token && isExpire || !item.support" />
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            @change="handleTotalChange(item.device, $event)"
+                            :checked="item.checked"
+                            :disabled="(!!token && (isExpire || isIPInvalid)) || !item.support"
+                        />
                         <label class="form-check-label categoryName" :style="{ marginBottom: item.support ? '8px' : '20px' }">{{ item.categoryName }}</label>
                         <!-- Prompt not supported -->
                         <span v-if="!item.support" class="temp-not-support help-block">
@@ -35,7 +41,7 @@
                                 type="checkbox"
                                 :checked="item1.checked"
                                 @change="handleSingleChange(item1.serial_number, $event)"
-                                :disabled="!!token && isExpire || !item.support"
+                                :disabled="(!!token && (isExpire || isIPInvalid)) || !item.support"
                             />
                             <label class="form-check-label">{{ item1.name }}</label>
                             <p class="deviceid help-block">ID: {{ item1.serial_number }}</p>
@@ -60,7 +66,7 @@ import collapseSrc from '@/assets/image/collapse.png';
 
 const { t } = useI18n();
 
-const { token, isExpire } = storeToRefs(useIHostStore());
+const { token, isExpire, isIPInvalid } = storeToRefs(useIHostStore());
 const deviceStore = useDeviceStore();
 const { deviceList, categoryDeviceList } = storeToRefs(deviceStore);
 // fold icon
@@ -135,8 +141,8 @@ const handleSingleChange = (v: string, e: any) => {
             width: 20px;
             height: 20px;
             font-size: 14px;
-            color: #FFC300;
-            border: 1px solid #FFC300;
+            color: #ffc300;
+            border: 1px solid #ffc300;
             border-radius: 50%;
             text-align: center;
             transform: scale(0.6);

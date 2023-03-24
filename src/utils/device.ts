@@ -13,15 +13,22 @@ const getDeviceDefaultName = (manufacturer: string, category: string) => {
 
 //	Get openapi device according to access_token
 export const getDevicesByAT = async () => {
-    const { iHostList, token, isExpire, successGetTokenMac } = storeToRefs(useIHostStore());
+    const { iHostList, token, isExpire, isIPInvalid, successGetTokenMac } = storeToRefs(useIHostStore());
     const { deviceList } = storeToRefs(useDeviceStore());
     if (!token.value) return;
     const iHostItem = iHostList.value.find((v) => v.mac === successGetTokenMac.value);
     const config = { ip: iHostItem?.ip ?? '', at: token.value };
     const { error, data } = await window.homebridge.request('/getDevices', config);
-    isExpire.value = true;
+    console.log("getDevices config => ", config);
+    console.log("getDevices error => ", error);
+    console.log("getDevices data => ", data);
+    console.log("getDevices isExpire => ", isExpire);
+    console.log("getDevices isIPInvalid => ", isIPInvalid);
     if (error === 0) {
+        // reset error status
         isExpire.value = false;
+        isIPInvalid.value = false;
+        // update device
         const config = await getPluginConfig();
         const formatDeviceList = data.device_list.map((item: any) => {
             let { name = '', serial_number, display_category, manufacturer } = item;
@@ -33,7 +40,16 @@ export const getDevicesByAT = async () => {
         });
         deviceList.value = formatDeviceList;
     } else if (error === 1000) {
-        window.homebridge.toast.error(t('SETTINGS.NET_ERROR'));
+        isIPInvalid.value = true;
+        isExpire.value = false;
+        // window.homebridge.toast.error(t('SETTINGS.NET_ERROR'));
+    } else {
+        isExpire.value = true;
+        isIPInvalid.value = false;
     }
+
+    console.log("getDevices isExpire after => ", isExpire.value);
+    console.log("getDevices isIPInvalid after=> ", isIPInvalid.value);
+
     await updatePluginConfig();
 };
