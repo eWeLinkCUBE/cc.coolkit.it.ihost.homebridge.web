@@ -277,6 +277,9 @@ const handleLink = async () => {
         window.homebridge.request('/getDeviceByIp', inputIP.value),
     ]);
 
+    console.log("NSPanelProRes => ", NSPanelProRes);
+    console.log("iHostRes => ", iHostRes);
+
     let result: null | IGetDeviceByIp = null;
     let actualIP = inputIP.value;
     if (NSPanelProRes.error === 0) {
@@ -297,6 +300,7 @@ const handleLink = async () => {
             if (item.mac === result!.mac) {
                 isExist = true;
                 item.ip = actualIP;
+                item.name = result!.domain
             }
         });
 
@@ -305,7 +309,12 @@ const handleLink = async () => {
             isIPInvalid.value = false;
             await getDevicesByAT();
         } else {
-            iHostStore.addIHost([{ ...result, name: 'ihost.local' }]);
+            const item = {
+                ip: result.ip,
+                mac: result.mac,
+                name: result.domain
+            }
+            iHostStore.addIHost([item]);
         }
 
         closeAddIHostModal();

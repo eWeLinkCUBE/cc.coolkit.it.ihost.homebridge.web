@@ -39,16 +39,19 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
-import getTokenTipZh from '@/assets/image/get-token-tip-zh.gif';
-import getTokenTipEn from '@/assets/image/get-token-tip-en.gif';
-import getNsPanelProTokenTipZh from '@/assets/image/get-ns-panel-pro-token-tip-zh.gif';
 
 const { t } = useI18n();
 
 // Get the Chinese and English gif of the token prompt
-const getIHostTokenTip = window.homebridge.serverEnv.env.lang === 'zh-CN' ? getTokenTipZh : getTokenTipEn;
+const getIHostTokenTip =
+    window.homebridge.serverEnv.env.lang === 'zh-CN'
+        ? 'https://ewelink.cc/wp-content/uploads/2023/03/get-token-tip-zh.gif'
+        : 'https://ewelink.cc/wp-content/uploads/2023/03/get-token-tip-en.gif';
 // TODO need english version pic
-const getNsPanelProTokenTip = window.homebridge.serverEnv.env.lang === 'zh-CN' ? getNsPanelProTokenTipZh : getNsPanelProTokenTipZh;
+const getNsPanelProTokenTip =
+    window.homebridge.serverEnv.env.lang === 'zh-CN'
+        ? 'https://ewelink.cc/wp-content/uploads/2023/03/get-ns-panel-pro-token-tip-zh.gif'
+        : 'https://ewelink.cc/wp-content/uploads/2023/03/get-ns-panel-pro-token-tip-zh.gif';
 </script>
 
 <style lang="scss">
