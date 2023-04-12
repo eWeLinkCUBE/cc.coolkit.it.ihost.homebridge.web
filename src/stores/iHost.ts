@@ -1,3 +1,4 @@
+import { getDevicesByAT } from '@/utils';
 import { defineStore } from 'pinia';
 
 export interface iHostListItem {
@@ -32,27 +33,28 @@ export const useIHostStore = defineStore({
         return {
             iHostList: [],
             token: '',
-            isExpire: false, 
-            isIPInvalid: false, 
-            getTokenTime: 0, 
-            getTokenMac: '', 
-            successGetTokenMac: '', 
-            enableDeviceLog: true 
+            isExpire: false,
+            isIPInvalid: false,
+            getTokenTime: 0,
+            getTokenMac: '',
+            successGetTokenMac: '',
+            enableDeviceLog: true
         };
     },
     actions: {
         // Add iHost device
-        addIHost(iHost: iHostListItem[]) {
-            iHost.forEach((iHostItem) => {
-                const { ip, mac } = iHostItem;
+        async addIHost(iHost: iHostListItem[]) {
+            for (const item of iHost) {
+                const { ip, mac } = item;
                 if (!ip) return;
                 const index = this.iHostList.findIndex((item) => item.ip === ip || item.mac === mac);
                 if (index === -1) {
-                    this.iHostList.push(iHostItem);
+                    this.iHostList.push(item);
                 } else {
-                    this.iHostList.splice(index, 1, iHostItem);
+                    this.iHostList.splice(index, 1, item);
+                    await getDevicesByAT();
                 }
-            });
+            }
         },
         // Update iHost listing data
         updateIHostList(name: string, ip: string, mac: string) {

@@ -51,7 +51,7 @@ const getIHostTokenTip =
 const getNsPanelProTokenTip =
     window.homebridge.serverEnv.env.lang === 'zh-CN'
         ? 'https://ewelink.cc/wp-content/uploads/2023/03/get-ns-panel-pro-token-tip-zh.gif'
-        : 'https://ewelink.cc/wp-content/uploads/2023/04/get-ns-panel-pro-token-tip-en.gif';
+        : 'https://ewelink.cc/wp-content/uploads/2023/04/get-ns-panel-pro-token-tip-en-2.gif';
 </script>
 
 <style lang="scss">

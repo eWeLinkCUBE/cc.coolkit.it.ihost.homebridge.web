@@ -26,9 +26,8 @@ window.homebridge.showSpinner();
 
 const iHostStore = useIHostStore();
 // Listen to query mdns results
-window.homebridge.addEventListener('getMdnsDevices', (event: any) => {
-    console.log("getMdnsDevices => ", event.data);
-    iHostStore.addIHost(event.data);
+window.homebridge.addEventListener('getMdnsDevices', async (event: any) => {
+    await iHostStore.addIHost(event.data);
 });
 </script>
 

@@ -95,7 +95,7 @@ const initConfigInfo = async () => {
     if (ihostName && ip && mac) {
         iHostStore.updateIHostList(ihostName, ip, mac);
     }
-    
+
     token.value = at;
     successGetTokenMac.value = mac;
     enableDeviceLog.value = log;
@@ -277,8 +277,6 @@ const handleLink = async () => {
         window.homebridge.request('/getDeviceByIp', inputIP.value),
     ]);
 
-    console.log("NSPanelProRes => ", NSPanelProRes);
-    console.log("iHostRes => ", iHostRes);
 
     let result: null | IGetDeviceByIp = null;
     let actualIP = inputIP.value;
@@ -291,8 +289,6 @@ const handleLink = async () => {
         result = iHostRes.data;
     }
 
-    console.log('NSPanelProRes => ', NSPanelProRes);
-    console.log('iHostRes => ', iHostRes);
     showIrregularFormatTip.value = false;
     if (result) {
         let isExist = false;
@@ -300,7 +296,7 @@ const handleLink = async () => {
             if (item.mac === result!.mac) {
                 isExist = true;
                 item.ip = actualIP;
-                item.name = result!.domain
+                item.name = result!.domain;
             }
         });
 
@@ -310,10 +306,10 @@ const handleLink = async () => {
             await getDevicesByAT();
         } else {
             const item = {
-                ip: result.ip,
+                ip: actualIP,
                 mac: result.mac,
-                name: result.domain
-            }
+                name: result.domain,
+            };
             iHostStore.addIHost([item]);
         }
 

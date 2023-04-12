@@ -19,11 +19,6 @@ export const getDevicesByAT = async () => {
     const iHostItem = iHostList.value.find((v) => v.mac === successGetTokenMac.value);
     const config = { ip: iHostItem?.ip ?? '', at: token.value };
     const { error, data } = await window.homebridge.request('/getDevices', config);
-    console.log("getDevices config => ", config);
-    console.log("getDevices error => ", error);
-    console.log("getDevices data => ", data);
-    console.log("getDevices isExpire => ", isExpire);
-    console.log("getDevices isIPInvalid => ", isIPInvalid);
     if (error === 0) {
         // reset error status
         isExpire.value = false;
@@ -47,9 +42,6 @@ export const getDevicesByAT = async () => {
         isExpire.value = true;
         isIPInvalid.value = false;
     }
-
-    console.log("getDevices isExpire after => ", isExpire.value);
-    console.log("getDevices isIPInvalid after=> ", isIPInvalid.value);
 
     await updatePluginConfig();
 };
