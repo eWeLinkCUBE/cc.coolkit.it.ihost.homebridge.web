@@ -28,12 +28,8 @@
                             :checked="item.checked"
                             :disabled="(!!token && (isExpire || isIPInvalid)) || !item.support"
                         />
-                        <label class="form-check-label categoryName" :style="{ marginBottom: item.support ? '8px' : '20px' }">{{ item.categoryName }}</label>
+                        <label class="form-check-label categoryName" :style="{ marginBottom: '8px' }">{{ item.categoryName }}</label>
                         <!-- Prompt not supported -->
-                        <span v-if="!item.support" class="temp-not-support help-block">
-                            <span class="not-support-icon">i</span>
-                            {{ t('DEVICES.TEMP_NOT_SUPPORT') }}
-                        </span>
                         <!-- Specific device under the category -->
                         <div class="collapse show" :id="item.categoryName" v-for="item1 in item.device" :key="item1.serial_number">
                             <input

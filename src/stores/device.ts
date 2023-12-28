@@ -16,7 +16,8 @@ export const deviceCategoryMap = new Map<string, string>([
     ['humiditySensor', t('CATEGORY.HUM')],
     ['temperatureAndHumiditySensor', t('CATEGORY.TEMP_HUM')],
     ['waterLeakDetector', t('CATEGORY.WATER_DETECT')],
-    ['curtain', t('CATEGORY.CURTAIN')]
+    ['curtain', t('CATEGORY.CURTAIN')],
+    ['fanLight', t('CATEGORY.FAN_LIGHT')]
 ]);
 // Device Type Classification
 export const categoryMap = new Map([
@@ -24,7 +25,8 @@ export const categoryMap = new Map([
     [t('DEVICES.LIGHT'), ['light']],
     [t('DEVICES.SENSOR'), ['smokeDetector', 'contactSensor', 'motionSensor', 'temperatureSensor', 'humiditySensor', 'temperatureAndHumiditySensor', 'waterLeakDetector']],
     [t('DEVICES.CURTAIN'), ['curtain']],
-    [t('DEVICES.OTHER_DEVICES'), []]
+    [t('DEVICES.OTHER_DEVICES'), ['fanLight']],
+    [t('DEVICES.NO_SUPPORTED'), []]
 ]);
 
 export interface deviceListItem {
@@ -66,7 +68,7 @@ export const useDeviceStore = defineStore({
             for (let categoryName of categoryMap.keys()) {
                 const categories = categoryMap.get(categoryName);
                 const device = this.deviceList.filter((item) => {
-                    if (categoryName === t('DEVICES.OTHER_DEVICES')) {
+                    if (categoryName === t('DEVICES.NO_SUPPORTED')) {
                         return !deviceCategoryMap.has(item.display_category);
                     }
                     return categories?.includes(item.display_category);
@@ -76,7 +78,7 @@ export const useDeviceStore = defineStore({
                     categoryName,
                     device,
                     checked: device.every((v) => v.checked === true),
-                    support: categoryName !== t('DEVICES.OTHER_DEVICES')
+                    support: categoryName !== t('DEVICES.NO_SUPPORTED')
                 });
             }
             return res;

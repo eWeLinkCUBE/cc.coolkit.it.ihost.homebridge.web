@@ -35,7 +35,7 @@ export default {
         SENSOR: '传感器',
         CURTAIN: '窗帘',
         OTHER_DEVICES: '其他设备',
-        TEMP_NOT_SUPPORT: '暂不支持'
+        NO_SUPPORTED: '暂不支持'
     },
     CATEGORY: {
         PLUG: '插座',
@@ -49,6 +49,7 @@ export default {
         TEMP: '温度传感器',
         HUM: '湿度传感器',
         PIR_DETECT: 'PIR 传感器',
-        DOOR_DETECT: '门磁'
+        DOOR_DETECT: '门磁',
+        FAN_LIGHT: '风扇灯'
     }
 };

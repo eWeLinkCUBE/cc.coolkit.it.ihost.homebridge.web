@@ -30,12 +30,12 @@ export default {
         CONFIG: 'Device settings',
         TIP: 'Selected devices will be displayed in HomeKit.',
         NO_DEVICE: 'No device',
-        SWITCH: 'switch',
-        LIGHT: 'light',
-        SENSOR: 'sensor',
-        CURTAIN: 'curtain',
-        OTHER_DEVICES: 'Other devices',
-        TEMP_NOT_SUPPORT: 'Device not supported'
+        SWITCH: 'Switch',
+        LIGHT: 'Light',
+        SENSOR: 'Sensor',
+        CURTAIN: 'Curtain',
+        OTHER_DEVICES: 'Other',
+        NO_SUPPORTED: 'Device not supported'
     },
     CATEGORY: {
         PLUG: 'Outlet',
@@ -49,6 +49,7 @@ export default {
         TEMP: 'Temperature Sensor',
         HUM: 'Humidity Sensor',
         PIR_DETECT: 'Motion Sensor',
-        DOOR_DETECT: 'Door/Window Sensor'
+        DOOR_DETECT: 'Door/Window Sensor',
+        FAN_LIGHT: 'fanLight'
     }
 };
